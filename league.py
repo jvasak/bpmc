@@ -8,19 +8,31 @@ class TeamGroup:
         self.__child  = []
 
     def addChild(self, child):
-        self.__child.append(child)
-        child.setParent(self)
+        if child.setParent(self): 
+            self.__child.append(child)
 
     def setParent(self, parent):
         self.__parent = parent
+        return 1
 
     def listChildren(self, pre='', indent='  ', recurse=1):
-        print pre + self.__name
+        print pre + self.getName()
         for child in self.__child:
             if recurse:
                 child.listChildren(pre=pre+indent, indent=indent)
             else:
                 print pre + indent + child.getName()
+
+    def getTeams(self):
+        teams = []
+        if self.__child:
+            if isinstance(self.__child[0], Team):
+                return self.__child;
+            else:
+                for child in self.__child:
+                    teams = teams[:] + child.getTeams()
+        return teams
+            
 
     def getChildren(self):
         return self.__child
@@ -37,7 +49,8 @@ class League(TeamGroup):
     def __init__(self, name='NFL'):
         TeamGroup.__init__(self, name)
 
-
+    def setParent(self, parent):
+        return 0
     
 
 class Conference(TeamGroup):
@@ -59,6 +72,5 @@ class Team(TeamGroup):
         self.__abbr = abbr;
 
     def getName(self):
-        print 'YIKES'
         return TeamGroup.getName(self) + ' (' + self.__abbr + ')'
 
