@@ -8,8 +8,10 @@ from league import Conference
 from league import Division
 from league import Team
 
-if __name__ == "__main__":
-    nfl = League()
+def setupNFL():
+    """Create structure for NFL teams"""
+
+    nfl = League('NFL')
     
     afc = Conference('AFC')
     nfc = Conference('NFC')
@@ -77,11 +79,38 @@ if __name__ == "__main__":
     nfcw.addChild(Team('Seattle Seahawks',     'SEA'))
     nfcw.addChild(Team('St. Louis Rams',       'STL'))
 
+    return nfl
+
+
+def loadBeatPower():
+    with open("2008_beatpower.txt") as f:
+        for line in f:
+            print line
+
+
+if __name__ == "__main__":
+    
+    # Get league structure
+    nfl = setupNFL()
+
+    loadBeatPower()
+
+    # Dump structure (debugging)
     nfl.listChildren()
     
-    teams = nfc.getTeams()
-    for team in teams:
-        print team.getName()
+    # Test getting of teams from conference
+    confs = nfl.getChildren()
+    for conf in confs:
+        if conf.getName() == 'NFC':
+            nfc = conf
+            break
+    if nfc:
+        teams = nfc.getTeams()
+        for team in teams:
+            print team.getName()
+    else:
+        print "Could not find NFC"
+        sys.exit(1)
 
     sys.exit(0)
     

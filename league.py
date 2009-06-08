@@ -1,5 +1,7 @@
 #/usr/bin/python
 
+import string
+
 class TeamGroup:
     """Abstract base class for organizing teams"""
     def __init__(self, name):
@@ -69,8 +71,13 @@ class Team(TeamGroup):
 
     def __init__(self, name, abbr):
         TeamGroup.__init__(self, name);
-        self.__abbr = abbr;
+        self.__abbr      = abbr;
+        self.__beatpower = 0.0
 
     def getName(self):
-        return TeamGroup.getName(self) + ' (' + self.__abbr + ')'
+        f = string.Formatter()
+        return f.format("%s (%s): %3.1f" % (TeamGroup.getName(self), self.__abbr, self.__beatpower))
+
+    def setBeatPower(self, power):
+        self.__beatpower = power
 
