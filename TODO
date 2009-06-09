@@ -1,0 +1,15 @@
+Current tasks:
+
+* Add schedule data structure to League class
+* Load schedule from .csv file
+* Add win/loss arrays to Team class
+* Simulate single season
+* Look up NFL tie break rules
+* Rank teams and determine postseason slate
+* Store division, postseason, conf champ, SB champ stats
+* Run multiple siulations
+* gnuplot?? - display summary of monte carlo simulations
+
+* Add code to generate beatgraph and beatpower
+* Merge first two weeks onto previous year's graph??
+* Use old beatpower with current data??
