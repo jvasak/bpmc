@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 import sys
-#from optparse import OptionParser
+import csv
+from optparse import OptionParser
 
 from league import League
 from league import Conference
@@ -82,18 +83,35 @@ def setupNFL():
     return nfl
 
 
-def loadBeatPower():
-    with open("2008_beatpower.txt") as f:
-        for line in f:
-            print line
+def loadBeatPower(filename, nfl):
+    bpReader = csv.reader(open(filename), 
+                          delimiter=',', quotechar='|')
+    for row in bpReader:
+        team = nfl.getTeam(row[0])
+        if team is None:
+            print 'Cannot find team ' + row[0]
+        else:
+            team.setBeatPower(float(row[1]))
+
 
 
 if __name__ == "__main__":
     
+    parser = OptionParser()
+    parser.add_option("-b", "--beatfile", dest="bpname",
+                      help="csv file for team BeatPower scores", 
+                      metavar="FILE")
+    (options, args) = parser.parse_args()
+
+    if options.bpname is None:
+        print "Must specify csv file for beatpowers.  Use --help for syntax"
+        sys.exit(-1)
+
+
     # Get league structure
     nfl = setupNFL()
 
-    loadBeatPower()
+    loadBeatPower(options.bpname, nfl)
 
     # Dump structure (debugging)
     nfl.listChildren()
@@ -101,8 +119,8 @@ if __name__ == "__main__":
     # Test getting of teams from conference
     confs = nfl.getChildren()
     for conf in confs:
-        if conf.getName() == 'NFC':
-            nfc = conf
+        if confs[conf].getName() == 'NFC':
+            nfc = confs[conf]
             break
     if nfc:
         teams = nfc.getTeams()
@@ -112,5 +130,17 @@ if __name__ == "__main__":
         print "Could not find NFC"
         sys.exit(1)
 
+    vikes = nfl.getTeam('MIN')
+    print '---------------'
+    print vikes.getName()
+
+    afc = nfl.getTeam('AFC')
+    if afc is None:
+        print 'Ack!!'
+    else:
+        vikes = afc.getTeam('MIN')
+        if not vikes is None:
+            print 'Ack again!!'
+    
     sys.exit(0)
     
