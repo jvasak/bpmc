@@ -36,7 +36,7 @@ def setupNFL():
     afce.addChild(Team('New York Jets',        'NYJ'))
 
     afcn.addChild(Team('Baltimore Ravens',     'BAL'))
-    afcn.addChild(Team('Cincinnatti Bengals',  'CIN'))
+    afcn.addChild(Team('Cincinnati Bengals',   'CIN'))
     afcn.addChild(Team('Cleveland Browns',     'CLE'))
     afcn.addChild(Team('Pittsburgh Steelers',  'PIT'))
 
@@ -62,7 +62,7 @@ def setupNFL():
 
     nfce.addChild(Team('Dallas Cowboys',       'DAL'))
     nfce.addChild(Team('New York Giants',      'NYG'))
-    nfce.addChild(Team('Philladelphia Eagles', 'PHI'))
+    nfce.addChild(Team('Philadelphia Eagles',  'PHI'))
     nfce.addChild(Team('Washington Redskins',  'WAS'))
 
     nfcc.addChild(Team('Chicago Bears',        'CHI'))
