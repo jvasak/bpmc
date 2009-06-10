@@ -1,6 +1,7 @@
 #/usr/bin/python
 
 import string
+import csv
 
 class TeamGroup:
     """Abstract base class for organizing teams"""
@@ -15,7 +16,7 @@ class TeamGroup:
 
     def setParent(self, parent):
         self.__parent = parent
-        return 1
+        return True
 
     def listChildren(self, pre='', indent='  ', recurse=1):
         print pre + self.getName()
@@ -59,10 +60,36 @@ class League(TeamGroup):
     
     def __init__(self, name='NFL'):
         TeamGroup.__init__(self, name)
+        self.__sched = [[] for i in range(21)]
 
     def setParent(self, parent):
-        return 0
+        return False
     
+    def loadCsvSchedule(self, csvfile):
+        try:
+            skdReader = csv.reader(open(csvfile), 
+                                   delimiter=',', quotechar='|')
+            
+            (wkIdx, awIdx, hmIdx) = (None, None, None)
+            hdr = skdReader.next()
+            for i in range(0, len(hdr)):
+                if   hdr[i].lower() == 'week':
+                    wkIdx = i
+                elif hdr[i].lower() == 'away':
+                    awIdx = i
+                elif hdr[i].lower() == 'home':
+                    hmIdx = i
+        
+            for row in skdReader:
+                self.__sched[int(row[wkIdx])].append((row[hmIdx],row[awIdx]))
+                
+        except:
+            print "Schedule parsing error"
+            return False
+
+        return True
+
+
 
 class Conference(TeamGroup):
     """Simple class not much more than a named list of divisions"""
@@ -88,7 +115,8 @@ class Team(TeamGroup):
 
     def getName(self):
         f = string.Formatter()
-        return f.format("%s (%s): %3.1f" % (TeamGroup.getName(self), self.__abbr, self.__beatpower))
+        return f.format("%s (%s): %3.1f" % (TeamGroup.getName(self), 
+                                            self.__abbr, self.__beatpower))
 
     def setBeatPower(self, power):
         self.__beatpower = power

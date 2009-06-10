@@ -84,63 +84,72 @@ def setupNFL():
 
 
 def loadBeatPower(filename, nfl):
-    bpReader = csv.reader(open(filename), 
-                          delimiter=',', quotechar='|')
-    for row in bpReader:
-        team = nfl.getTeam(row[0])
-        if team is None:
-            print 'Cannot find team ' + row[0]
-        else:
-            team.setBeatPower(float(row[1]))
 
+    try:
+        bpReader = csv.reader(open(filename), 
+                              delimiter=',', quotechar='|')
+        for row in bpReader:
+            team = nfl.getTeam(row[0])
+            if team is None:
+                print 'Cannot find team ' + row[0]
+            else:
+                team.setBeatPower(float(row[1]))
+    except:
+        print "Error parsing beatpower data"
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
-    
-    parser = OptionParser()
-    parser.add_option("-b", "--beatfile", dest="bpname",
-                      help="csv file for team BeatPower scores", 
-                      metavar="FILE")
+    usage   = "usage: %prog [options] beatpower.csv schedule.csv"
+    version = "%prog 0.10"
+
+    parser = OptionParser(usage=usage, version=version)
+    parser.add_option("-s", "--sigma", dest="sigma", type="float",
+                      help="float value to use for variance",
+                      metavar="SIGMA", default=10.0)
     (options, args) = parser.parse_args()
 
-    if options.bpname is None:
-        print "Must specify csv file for beatpowers.  Use --help for syntax"
-        sys.exit(-1)
-
+    if len(args) < 2:
+        parser.print_help()
+        sys.exit(1)
 
     # Get league structure
     nfl = setupNFL()
-
-    loadBeatPower(options.bpname, nfl)
-
-    # Dump structure (debugging)
-    nfl.listChildren()
     
-    # Test getting of teams from conference
-    confs = nfl.getChildren()
-    for conf in confs:
-        if confs[conf].getName() == 'NFC':
-            nfc = confs[conf]
-            break
-    if nfc:
-        teams = nfc.getTeams()
-        for team in teams:
-            print team.getName()
-    else:
-        print "Could not find NFC"
+    if not (loadBeatPower(args[0], nfl) and
+            nfl.loadCsvSchedule(args[1])):
         sys.exit(1)
 
-    vikes = nfl.getTeam('MIN')
-    print '---------------'
-    print vikes.getName()
+    # Dump structure (debugging)
+    #nfl.listChildren()
+    
+    # Test getting of teams from conference
+    #confs = nfl.getChildren()
+    #for conf in confs:
+    #    if confs[conf].getName() == 'NFC':
+    #        nfc = confs[conf]
+    #        break
+    #if nfc:
+    #    teams = nfc.getTeams()
+    #    for team in teams:
+    #        print team.getName()
+    #else:
+    #    print "Could not find NFC"
+    #    sys.exit(1)
 
-    afc = nfl.getTeam('AFC')
-    if afc is None:
-        print 'Ack!!'
-    else:
-        vikes = afc.getTeam('MIN')
-        if not vikes is None:
-            print 'Ack again!!'
+    #vikes = nfl.getTeam('MIN')
+    #print '---------------'
+    #print vikes.getName()
+
+    #afc = nfl.getTeam('AFC')
+    #if afc is None:
+    #    print 'Ack!!'
+    #else:
+    #    vikes = afc.getTeam('MIN')
+    #    if not vikes is None:
+    #        print 'Ack again!!'
     
     sys.exit(0)
     
