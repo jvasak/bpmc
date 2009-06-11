@@ -2,6 +2,8 @@
 
 import string
 import csv
+from random import normalvariate
+from math import sqrt
 
 class TeamGroup:
     """Abstract base class for organizing teams"""
@@ -81,13 +83,30 @@ class League(TeamGroup):
                     hmIdx = i
         
             for row in skdReader:
-                self.__sched[int(row[wkIdx])].append((row[hmIdx],row[awIdx]))
+                self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
                 
         except:
             print "Schedule parsing error"
             return False
 
         return True
+
+    def simulateRegularSeason(self):
+        for week in range(17):
+            print "Simulating %2d games for week %2d" % (len(self.__sched[week]),
+                                                          week)
+            for game in self.__sched[week]:
+                home = self.getTeam(game[0])
+                away = self.getTeam(game[1])
+                confidence = home.getBeatPower() - away.getBeatPower()
+                res = normalvariate(confidence, 50)
+                if res >= 0:
+                    home.addWin(away)
+                    away.addLoss(home)
+                else:
+                    home.addLoss(away)
+                    away.addWin(home)
+            
 
 
 
@@ -109,15 +128,29 @@ class Team(TeamGroup):
         TeamGroup.__init__(self, name);
         self.__abbr      = abbr;
         self.__beatpower = 0.0
+        self.__wins      = []
+        self.__losses    = []
 
     def getAbbr(self):
         return self.__abbr
 
     def getName(self):
         f = string.Formatter()
-        return f.format("%s (%s): %3.1f" % (TeamGroup.getName(self), 
-                                            self.__abbr, self.__beatpower))
+        return f.format("%5s (%5.1f) %3d %3d" % (self.__abbr, self.__beatpower,
+                                                 len(self.__wins),
+                                                 len(self.__losses)))
+    
+    def getBeatPower(self):
+        return self.__beatpower
 
     def setBeatPower(self, power):
         self.__beatpower = power
 
+    def addWin(self, team):
+        self.__wins.append(team)
+
+    def addLoss(self, team):
+        self.__losses.append(team)
+
+    def getRecord(self):
+        return (len(self.__wins), len(self.__losses))

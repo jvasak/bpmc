@@ -2,6 +2,7 @@
 
 import sys
 import csv
+import pickle
 from optparse import OptionParser
 
 from league import League
@@ -109,6 +110,10 @@ if __name__ == "__main__":
     parser.add_option("-s", "--sigma", dest="sigma", type="float",
                       help="float value to use for variance",
                       metavar="SIGMA", default=10.0)
+    parser.add_option('-d', '--dbg-out', dest="dbgfile", 
+                      type="string", default="",
+                      help="filename dump league (blank to suppress)",
+                      metavar="FILE")
     (options, args) = parser.parse_args()
 
     if len(args) < 2:
@@ -122,8 +127,19 @@ if __name__ == "__main__":
             nfl.loadCsvSchedule(args[1])):
         sys.exit(1)
 
+
+    nfl.simulateRegularSeason()
+
     # Dump structure (debugging)
-    #nfl.listChildren()
+    nfl.listChildren()
+    
+    if options.dbgfile != "":
+        try:
+            with open(options.dbgfile, 'w') as out:
+                pickle.dump(nfl, out)
+        except:
+            print "Error pickling NFL"
+            
     
     # Test getting of teams from conference
     #confs = nfl.getChildren()
