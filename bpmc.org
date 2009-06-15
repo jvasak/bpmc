@@ -1,0 +1,21 @@
+#+SEQ_TODO: TODO(t) STARTED(s) DONE(d)
+
+* Simulate NFL Outcomes for New Season
+** DONE Add schedule data structure to League class
+** DONE Load schedule from .csv file
+** DONE Add win/loss arrays to Team class
+** DONE Simulate single regular season
+** DONE Look up NFL tie break rules
+Saved info from nfl.com in read it later:
+http://www.nfl.com/standings/tiebreakingprocedures
+** TODO Rank teams and determine postseason slate
+** TODO Store division, postseason, conf champ, SB champ stats
+** TODO Run multiple siulations
+** TODO gnuplot?? - display summary of monte carlo simulations :ENH:
+* Integrate Beatpath Generation
+** TODO Port old code to generate beatgraph
+** TODO Implement generation of beatpower
+* Allow Updating of Beatpower into Simulations
+** TODO Work on single season schedule/results
+** TODO Merge first two weeks onto previous year's graph :ENH:
+** TODO Use old beatpower with current results at season start :ENH:
