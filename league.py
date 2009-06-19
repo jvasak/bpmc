@@ -154,3 +154,6 @@ class Team(TeamGroup):
 
     def getRecord(self):
         return (len(self.__wins), len(self.__losses))
+
+    def getWinPct(self):
+        return (len(self.__wins)/float(len(self.__wins) + len(self.__losses)))

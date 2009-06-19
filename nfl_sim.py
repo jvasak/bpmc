@@ -102,6 +102,51 @@ def loadBeatPower(filename, nfl):
     return True
 
 
+def breakTie(teams):
+    print "Tie break!"
+    return teams.sort(key=Team.getAbbr)
+
+
+def rankTeams(div):
+    ranked = []
+    teams  = div.getTeams()
+    
+    # basic sort by win pct
+    teams.sort(key=Team.getWinPct, reverse=True)
+
+    nextTeam = []
+    while len(teams) > 0:
+        nextTeam.append(teams.pop(0))
+
+        while len(teams) > 0 and teams[0].getWinPct() == nextTeam[0].getWinPct():
+            nextTeam.append(teams.pop(0))
+            
+        if len(nextTeam) > 1:
+            breakTie(nextTeam)
+            
+        ranked.extend(nextTeam)
+        nextTeam = []
+            
+    return ranked
+
+
+#
+# Drive down to division level and rank teams
+#
+def genRegularSeasonStandings(nfl):
+    confs = nfl.getChildren()
+    for cname in confs:
+        conf = confs[cname]
+        print conf.getName()
+        divs = conf.getChildren()
+        for dname in divs:
+            div = divs[dname]
+            print div.getName()
+            ranked = rankTeams(div)
+            for team in ranked:
+                print team.getName()
+
+
 if __name__ == "__main__":
     usage   = "usage: %prog [options] beatpower.csv schedule.csv"
     version = "%prog 0.10"
@@ -130,8 +175,10 @@ if __name__ == "__main__":
 
     nfl.simulateRegularSeason()
 
+    genRegularSeasonStandings(nfl)
+
     # Dump structure (debugging)
-    nfl.listChildren()
+    # nfl.listChildren()
     
     if options.dbgfile != "":
         try:

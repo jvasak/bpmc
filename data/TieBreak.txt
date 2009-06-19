@@ -10,12 +10,16 @@ The six postseason participants from each conference are seeded as follows:
    5. The Wild Card club with the best record.
    6. The Wild Card club with the second-best record.
 
-The following procedures will be used to break standings ties for postseason playoffs and to determine regular-season schedules.
+The following procedures will be used to break standings ties for postseason playoffs
+and to determine regular-season schedules.
 
 NOTE: Tie games count as one-half win and one-half loss for both clubs.
 TO BREAK A TIE WITHIN A DIVISION
 
-If, at the end of the regular season, two or more clubs in the same division finish with identical won-lost-tied percentages, the following steps will be taken until a champion is determined.
+If, at the end of the regular season, two or more clubs in the same division finish
+with identical won-lost-tied percentages, the following steps will be taken until a
+champion is determined.  
+
 Two Clubs
 
    1. Head-to-head (best won-lost-tied percentage in games between the clubs).
@@ -33,7 +37,8 @@ Two Clubs
 
 Three or More Clubs
 
-(Note: If two clubs remain tied after third or other clubs are eliminated during any step, tie breaker reverts to step 1 of the two-club format).
+(Note: If two clubs remain tied after third or other clubs are eliminated during any
+step, tie breaker reverts to step 1 of the two-club format).
 
    1. Head-to-head (best won-lost-tied percentage in games among the clubs).
    2. Best won-lost-tied percentage in games played within the division.
@@ -50,7 +55,8 @@ Three or More Clubs
 
 TO BREAK A TIE FOR THE WILD-CARD TEAM
 
-If it is necessary to break ties to determine the two Wild-Card clubs from each conference, the following steps will be taken.
+If it is necessary to break ties to determine the two Wild-Card clubs from each
+conference, the following steps will be taken.
 
    1. If the tied clubs are from the same division, apply division tie breaker.
    2. If the tied clubs are from different divisions, apply the following steps.
@@ -71,10 +77,16 @@ Two Clubs
 
 Three or More Clubs
 
-(Note: If two clubs remain tied after third or other clubs are eliminated, tie breaker reverts to step 1 of applicable two-club format.)
+(Note: If two clubs remain tied after third or other clubs are eliminated, tie
+breaker reverts to step 1 of applicable two-club format.)
 
-   1. Apply division tie breaker to eliminate all but the highest ranked club in each division prior to proceeding to step 2. The original seeding within a division upon application of the division tie breaker remains the same for all subsequent applications of the procedure that are necessary to identify the two Wild-Card participants.
-   2. Head-to-head sweep. (Applicable only if one club has defeated each of the others or if one club has lost to each of the others.)
+   1. Apply division tie breaker to eliminate all but the highest ranked club in each
+      division prior to proceeding to step 2. The original seeding within a division
+      upon application of the division tie breaker remains the same for all
+      subsequent applications of the procedure that are necessary to identify the two
+      Wild-Card participants.
+   2. Head-to-head sweep. (Applicable only if one club has defeated each of the
+      others or if one club has lost to each of the others.)
    3. Best won-lost-tied percentage in games played within the conference.
    4. Best won-lost-tied percentage in common games, minimum of four.
    5. Strength of victory.
@@ -86,22 +98,39 @@ Three or More Clubs
   11. Best net touchdowns in all games.
   12. Coin toss
 
-When the first Wild-Card team has been identified, the procedure is repeated to name the second Wild-Card, i.e., eliminate all but the highest-ranked club in each division prior to proceeding to step 2. In situations where three or more teams from the same division are involved in the procedure, the original seeding of the teams remains the same for subsequent applications of the tie breaker if the top-ranked team in that division qualifies for a Wild-Card berth.
-DETERMINING HOME-FIELD PRIORITY
+When the first Wild-Card team has been identified, the procedure is repeated to name
+the second Wild-Card, i.e., eliminate all but the highest-ranked club in each
+division prior to proceeding to step 2. In situations where three or more teams from
+the same division are involved in the procedure, the original seeding of the teams
+remains the same for subsequent applications of the tie breaker if the top-ranked
+team in that division qualifies for a Wild-Card berth.  DETERMINING HOME-FIELD
+PRIORITY
 
    1. To determine home-field priority among division titlists, apply Wild-Card tie breakers.
-   2. To determine home-field priority for Wild-Card qualifiers, apply division tie breakers (if teams are from the same division) or Wild-Card tie breakers (if teams are from different divisions).
+   2. To determine home-field priority for Wild-Card qualifiers, apply division tie
+      breakers (if teams are from the same division) or Wild-Card tie breakers (if teams
+      are from different divisions).
 
 TIE-BREAKING PROCEDURE FOR SELECTION MEETING
 
-If two or more clubs are tied in the selection order, the strength-of-schedule tie breaker is applied, subject to the following exceptions for playoff clubs:
+If two or more clubs are tied in the selection order, the strength-of-schedule tie
+breaker is applied, subject to the following exceptions for playoff clubs:
 
    1. The Super Bowl winner is last and the Super Bowl loser next-to-last.
-   2. Any non-Super Bowl playoff club involved in a tie moves down in drafting priority within its tied segment as follows:
+   2. Any non-Super Bowl playoff club involved in a tie moves down in drafting
+      priority within its tied segment as follows:
           * For a loss inthe Wild-Card playoffs, a plus factor of one-half.
           * For participation, win or lose, in the Divisional Playoffs, a plus factor of one.
           * For a loss in the conference championship Game, a plus factor of one.
-   3. Clubs with the best won-lost-tied records after these steps are applied will drop to their appropriate spots at the bottom of the tied segment. In no case will the above process move a club lower than the segmentin which it was initially tied.
-   4. Tied clubs will alternate priority throughout the 7 rounds of the draft. In case of a tie involving three or more teams, the club with priority in the first round will drop to the bottom of the tied segment in the second round and move its way back to the top of the segment in each succeeding round.
+   3. Clubs with the best won-lost-tied records after these steps are applied will
+      drop to their appropriate spots at the bottom of the tied segment. In no case
+      will the above process move a club lower than the segmentin which it was
+      initially tied.
+   4. Tied clubs will alternate priority throughout the 7 rounds of the draft. In
+      case of a tie involving three or more teams, the club with priority in the
+      first round will drop to the bottom of the tied segment in the second round and
+      move its way back to the top of the segment in each succeeding round.
 
-If any ties cannot be broken by strength of schedule, the divisional or conference tie breakers, whichever are applicable, are applied. Any ties that still exist are broken by a coin flip.
+If any ties cannot be broken by strength of schedule, the divisional or conference
+tie breakers, whichever are applicable, are applied. Any ties that still exist are
+broken by a coin flip.
