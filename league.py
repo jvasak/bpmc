@@ -101,9 +101,11 @@ class League(TeamGroup):
                 confidence = home.getBeatPower() - away.getBeatPower()
                 res = normalvariate(confidence, 50)
                 if res >= 0:
+                    print "%3s d. %3s" % (home.getAbbr(), away.getAbbr())
                     home.addWin(away)
                     away.addLoss(home)
                 else:
+                    print "%3s d. %3s" % (away.getAbbr(), home.getAbbr())
                     home.addLoss(away)
                     away.addWin(home)
             
@@ -155,5 +157,7 @@ class Team(TeamGroup):
     def getRecord(self):
         return (len(self.__wins), len(self.__losses))
 
-    def getWinPct(self):
-        return (len(self.__wins)/float(len(self.__wins) + len(self.__losses)))
+    def getWinPct(self, opp=None):
+        if opp is None:
+            return (len(self.__wins)/float(len(self.__wins) + len(self.__losses)))
+        return (self.__wins.count(opp)/float(self.__wins.count(opp) + self.__losses.count(opp)))

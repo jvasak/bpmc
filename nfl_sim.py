@@ -102,8 +102,24 @@ def loadBeatPower(filename, nfl):
     return True
 
 
+def breakTie2(A, B):
+    print "Tie between %3s and %3s" % (A.getAbbr(), B.getAbbr())
+    print "%3s %3.1f v %3.1f %3s" % (A.getAbbr(), A.getWinPct(B),
+                                     B.getWinPct(A), B.getAbbr())
+    
+    # Test 01: Head-to-Head
+    if A.getWinPct(B) > B.getWinPct(A):
+        return [A, B]
+    elif B.getWinPct(A) > A.getWinPct(B):
+        return [B, A]
+
+    return [A, B]
+
+    
+
 def breakTie(teams):
-    print "Tie break!"
+    if len(teams) == 2:
+        return breakTie2(teams[0], teams[1])
     return teams.sort(key=Team.getAbbr)
 
 
@@ -122,7 +138,7 @@ def rankTeams(div):
             nextTeam.append(teams.pop(0))
             
         if len(nextTeam) > 1:
-            breakTie(nextTeam)
+            nextTeam = breakTie(nextTeam)
             
         ranked.extend(nextTeam)
         nextTeam = []
