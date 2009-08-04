@@ -101,11 +101,14 @@ class League(TeamGroup):
                 confidence = home.getBeatPower() - away.getBeatPower()
                 res = normalvariate(confidence, 50)
                 if res >= 0:
-                    print "%3s d. %3s" % (home.getAbbr(), away.getAbbr())
+                    #print "%3s d. %3s" % (home.getAbbr(), away.getAbbr())
                     home.addWin(away)
                     away.addLoss(home)
+                elif res == 0:
+                    home.addTie(away)
+                    away.addTie(home)
                 else:
-                    print "%3s d. %3s" % (away.getAbbr(), home.getAbbr())
+                    #print "%3s d. %3s" % (away.getAbbr(), home.getAbbr())
                     home.addLoss(away)
                     away.addWin(home)
             
@@ -131,6 +134,7 @@ class Team(TeamGroup):
         self.__abbr      = abbr;
         self.__beatpower = 0.0
         self.__wins      = []
+        self.__ties      = []
         self.__losses    = []
 
     def getAbbr(self):
@@ -151,13 +155,34 @@ class Team(TeamGroup):
     def addWin(self, team):
         self.__wins.append(team)
 
+    def addTie(self, team):
+        self__ties.append(team)
+
     def addLoss(self, team):
         self.__losses.append(team)
 
     def getRecord(self):
         return (len(self.__wins), len(self.__losses))
 
-    def getWinPct(self, opp=None):
-        if opp is None:
-            return (len(self.__wins)/float(len(self.__wins) + len(self.__losses)))
-        return (self.__wins.count(opp)/float(self.__wins.count(opp) + self.__losses.count(opp)))
+    def getOpponents(self):
+        opps = self.__wins
+        opps.extend(self.__losses)
+        opps.extend(self.__ties)
+        return opps
+    
+    def getWinPct(self, opps=None):
+        wins, ties, loss = 0, 0, 0
+        if opps is None:
+            wins = len(self.__wins)
+            ties = len(self.__ties)
+            loss = len(self.__losses)
+        elif isinstance(opps,Team):
+            wins = self.__wins.count(opps)
+            ties = self.__ties.count(opps)
+            loss = self.__losses.count(opps)
+        else:
+            for opp in opps:
+                wins += self.__wins.count(opp)
+                ties += self.__ties.count(opp)
+                loss += self.__losses.count(opp)
+        return (wins + 0.5*ties)/float(wins + ties + loss)
