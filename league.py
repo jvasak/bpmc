@@ -2,6 +2,7 @@
 
 import string
 import csv
+import logging
 from random import normalvariate
 from math import sqrt
 
@@ -45,7 +46,9 @@ class TeamGroup:
             if not team is None:
                 return team
         return None
-            
+
+    def getParent(self):
+        return self.__parent
 
     def getChildren(self):
         return self.__child
@@ -68,6 +71,7 @@ class League(TeamGroup):
         return False
     
     def loadCsvSchedule(self, csvfile):
+        logging.info("Loading schedule from: " + csvfile)
         try:
             skdReader = csv.reader(open(csvfile), 
                                    delimiter=',', quotechar='|')
@@ -77,13 +81,17 @@ class League(TeamGroup):
             for i in range(0, len(hdr)):
                 if   hdr[i].lower() == 'week':
                     wkIdx = i
+                    logging.debug("Week info in column " + str(i))
                 elif hdr[i].lower() == 'away':
                     awIdx = i
+                    logging.debug("Away info in column " + str(i))
                 elif hdr[i].lower() == 'home':
                     hmIdx = i
+                    logging.debug("Home info in column " + str(i))
         
             for row in skdReader:
                 self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
+                logging.debug("Wk " + row[wkIdx] + ": " + row[awIdx] + " @ " + row[hmIdx]);
                 
         except:
             print "Schedule parsing error"
@@ -93,9 +101,10 @@ class League(TeamGroup):
 
     def simulateRegularSeason(self):
         for week in range(17):
-            print "Simulating %2d games for week %2d" % (len(self.__sched[week]),
-                                                          week)
+            #print "Simulating %2d games for week %2d" % (len(self.__sched[week]),
+            #                                              week)
             for game in self.__sched[week]:
+                logging.debug("Sim: " + game[1] + " @ " + game[0])
                 home = self.getTeam(game[0])
                 away = self.getTeam(game[1])
                 confidence = home.getBeatPower() - away.getBeatPower()
@@ -136,6 +145,7 @@ class Team(TeamGroup):
         self.__wins      = []
         self.__ties      = []
         self.__losses    = []
+        self.__wpOpps    = []
 
     def getAbbr(self):
         return self.__abbr
@@ -165,24 +175,39 @@ class Team(TeamGroup):
         return (len(self.__wins), len(self.__losses))
 
     def getOpponents(self):
-        opps = self.__wins
+        opps = []
+        opps.extend(self.__wins)
         opps.extend(self.__losses)
         opps.extend(self.__ties)
         return opps
     
-    def getWinPct(self, opps=None):
+    def setWinPctOpponents(self, opps):
+        self.resetWinPctOpponents()
+        self.__wpOpps.extend(opps)
+
+    def resetWinPctOpponents(self):
+        self.__wpOpps = []
+
+    def getWinPct(self):
+        opps = self.__wpOpps
         wins, ties, loss = 0, 0, 0
-        if opps is None:
+        if len(opps) == 0:
             wins = len(self.__wins)
             ties = len(self.__ties)
             loss = len(self.__losses)
-        elif isinstance(opps,Team):
-            wins = self.__wins.count(opps)
-            ties = self.__ties.count(opps)
-            loss = self.__losses.count(opps)
         else:
             for opp in opps:
                 wins += self.__wins.count(opp)
                 ties += self.__ties.count(opp)
                 loss += self.__losses.count(opp)
         return (wins + 0.5*ties)/float(wins + ties + loss)
+ 
+    def dumpGames(self):
+        print ("%s: ") % self.getAbbr(),
+        for w in self.__wins:
+            print ("%s(W)  ") % w.getAbbr(),
+        for l in self.__losses:
+            print ("%s(L)  ") % l.getAbbr(),
+        for t in self.__ties:
+            print ("%s(T)  ") % t.getAbbr(),
+        print ""
