@@ -113,19 +113,19 @@ class League(TeamGroup):
                           " games for week " + str(week))
 
             for game in self.__sched[week]:
-                logging.debug("Sim: " + game[1] + " @ " + game[0])
                 home = self.getTeam(game[0])
                 away = self.getTeam(game[1])
                 res  = self.simulateGame(sigma, home, away)
                 if res >= 0:
-                    #print "%3s d. %3s" % (home.getAbbr(), away.getAbbr())
+                    logging.debug(home.getAbbr() + " def. " + away.getAbbr())
                     home.addWin(away)
                     away.addLoss(home)
                 elif res == 0:
+                    logging.debug(home.getAbbr() + " TIE " + away.getAbbr())
                     home.addTie(away)
                     away.addTie(home)
                 else:
-                    #print "%3s d. %3s" % (away.getAbbr(), home.getAbbr())
+                    logging.debug(away.getAbbr() + " def. " + home.getAbbr())
                     home.addLoss(away)
                     away.addWin(home)
             
@@ -188,7 +188,22 @@ class Team(TeamGroup):
         opps.extend(self.__losses)
         opps.extend(self.__ties)
         return opps
+
+    def playedEach(self, opps):
+        """Returns true if team had played each of the opponent
+           in the list.  Presence of the tested team in list will
+           be ignored and not cause failure"""
+        logging.info("Team.playedEach")
+        for opp in opps:
+            if opp == self:
+                logging.debug("Skipping self in opponent list")
+                continue
+            if opp not in self.getOpponents():
+                logging.debug("Didn't play " + opp.getAbbr())
+                return False
+        return True
     
+
     def setWinPctOpponents(self, opps):
         self.resetWinPctOpponents()
         self.__wpOpps.extend(opps)

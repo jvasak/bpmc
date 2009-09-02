@@ -12,7 +12,7 @@ from league import Team
 
 def rankTeams(teams, div=True):
     ranked = []
-    
+
     # basic sort by win pct
     for team in teams:
         team.resetWinPctOpponents()
@@ -24,16 +24,16 @@ def rankTeams(teams, div=True):
 
         while len(teams) > 0 and teams[0].getWinPct() == nextTeam[0].getWinPct():
             nextTeam.append(teams.pop(0))
-            
+
         if len(nextTeam) > 1:
             if div:
                 nextTeam = breakDivTie(nextTeam)
             else:
                 nextTeam = breakConfTie(nextTeam)
-            
+
         ranked.extend(nextTeam)
         nextTeam = []
-            
+
     return ranked
 
 
@@ -53,7 +53,7 @@ def tieBreakStep(teams, opps, callback, msg):
             logging.debug("Break off top " + str(i) + " teams using " + msg)
             brkIdx = i
             break
-    
+
     if brkIdx == -1:
         return (False, teams)
 
@@ -68,7 +68,7 @@ def tieBreakStep(teams, opps, callback, msg):
         return (True, teams)
     else:
         return (False, teams[:brkIdx])
-    
+
 
 def breakDivTie(teams):
     if len(teams) == 1:
@@ -89,17 +89,17 @@ def breakDivTie(teams):
     commonOpps = set(teams[0].getOpponents())
     commonOpps.intersection(set(teams[1].getOpponents()))
     (finished, teams) = tieBreakStep(teams, commonOpps, breakDivTie, "common")
-    
+
     if finished:
         return teams
 
     conf = div.getParent()
     confTeams = conf.getTeams()
     (finished, teams) = tieBreakStep(teams, confTeams, breakDivTie, "conf")
-    
+
     if finished:
         return teams
-    
+
     coin = random.randint(0, len(teams)-1)
     logging.info(teams[coin].getAbbr() + " by coin flip")
     tmp         = teams[0]
@@ -109,8 +109,88 @@ def breakDivTie(teams):
 
     return teams
 
+
 def breakConfTie(teams):
+    if len(teams) == 1:
+        return teams
+
+    logging.debug("breakConfTie")
+
+    if len(teams) >= 3:
+        # Check if they've all played each other
+        for team in teams:
+            if not team.playedEach(teams):
+                break
+        else:
+            # This is a special test for a sweep (good or bad), so
+            #  don't set the callback function.  We'll do it ourself
+            (finished, teams) = tieBreakStep(teams, teams, None, "h2h")
+            if teams[0].getWinPct() == 1.0:
+                logging.info(teams[0].getAbbr() + " swept others")
+                teams[1:] = breakConfTie(teams[1:])
+                return teams
+            elif teams[-1].getWinPct() == 0.0:
+                logging.debug(teams[-1].getAbbr() + " got swept")
+                teams[:-1] = breakConfTie(teams[:-1])
+                return teams
+
+        conf = teams[0].getParent().getParent()
+        confTeams = conf.getTeams()
+        (finished, teams) = tieBreakStep(teams, confTeams, breakConfTie, "conf")
+
+        if finished:
+            return teams
+
+
+        commonOpps = set(teams[0].getOpponents())
+        for i in range(1,len(teams)):
+            commonOpps.intersection(set(teams[i].getOpponents()))
+        if len(commonOpps) >= 4:
+            (finished, teams) = tieBreakStep(teams, commonOpps, breakConfTie, "common")
+
+            if finished:
+                return teams
+        else:
+            logging.debug("Not enough common opponents to break tie")
+
+
+        coin = random.randint(0, len(teams)-1)
+        logging.info(teams[coin].getAbbr() + " by coin flip")
+        tmp         = teams[0]
+        teams[0]    = teams[coin]
+        teams[coin] = tmp
+        teams[1:]   = breakConfTie(teams[1:])
+
+        return teams
+
+    # Now down to just 2 teams
+    if teams[0].playedEach(teams):
+        (finished, teams) = tieBreakStep(teams, teams, breakDivTie, "h2h")
+        if finished:
+            return teams
+
+    conf = teams[0].getParent().getParent()
+    confTeams = conf.getTeams()
+    (finished, teams) = tieBreakStep(teams, confTeams, breakConfTie, "conf")
+    if finished:
+        return teams
+
+    commonOpps = set(teams[0].getOpponents())
+    commonOpps.intersection(set(teams[1].getOpponents()))
+    if len(commonOpps) >= 4:
+        (finished, teams) = tieBreakStep(teams, commonOpps, breakConfTie, "common")
+        if finished:
+            return teams
+    else:
+        logging.debug("Not enough common opponents to break tie")
+
+    coin = random.randint(0, 1)
+    logging.info(teams[coin].getAbbr() + " by coin flip")
+    if coin:
+        teams.reverse()
+
     return teams
+
 
 class NFL:
     def __init__(self):
@@ -118,14 +198,16 @@ class NFL:
         self.__setup()
 
     def __setup(self):
+        self.__standings  = dict()
+        self.__postseason = dict()
         self.__league = League('NFL')
-        
+
         afc = Conference('AFC')
         nfc = Conference('NFC')
-        
+
         self.__league.addChild(afc)
         self.__league.addChild(nfc)
-        
+
         afce = Division('East')
         afcn = Division('North')
         afcs = Division('South')
@@ -135,17 +217,17 @@ class NFL:
         afc.addChild(afcn)
         afc.addChild(afcs)
         afc.addChild(afcw)
-        
+
         afce.addChild(Team('Buffalo Bills',        'BUF'))
         afce.addChild(Team('Miami Dolphins',       'MIA'))
         afce.addChild(Team('New England Patriots', 'NE'))
         afce.addChild(Team('New York Jets',        'NYJ'))
-        
+
         afcn.addChild(Team('Baltimore Ravens',     'BAL'))
         afcn.addChild(Team('Cincinnati Bengals',   'CIN'))
         afcn.addChild(Team('Cleveland Browns',     'CLE'))
         afcn.addChild(Team('Pittsburgh Steelers',  'PIT'))
-        
+
         afcs.addChild(Team('Houston Texans',       'HOU'))
         afcs.addChild(Team('Indianapolis Colts',   'IND'))
         afcs.addChild(Team('Jacksonville Jaguars', 'JAC'))
@@ -170,12 +252,12 @@ class NFL:
         nfce.addChild(Team('New York Giants',      'NYG'))
         nfce.addChild(Team('Philadelphia Eagles',  'PHI'))
         nfce.addChild(Team('Washington Redskins',  'WAS'))
-        
+
         nfcc.addChild(Team('Chicago Bears',        'CHI'))
         nfcc.addChild(Team('Detroit Lions',        'DET'))
         nfcc.addChild(Team('Green Bay Packers',    'GB'))
         nfcc.addChild(Team('Minnesota Vikings',    'MIN'))
-    
+
         nfcs.addChild(Team('Atlanta Falcons',      'ATL'))
         nfcs.addChild(Team('Carolina Panthers',    'CAR'))
         nfcs.addChild(Team('New Orleans Saints',   'NO'))
@@ -186,7 +268,7 @@ class NFL:
         nfcw.addChild(Team('Seattle Seahawks',     'SEA'))
         nfcw.addChild(Team('St. Louis Rams',       'STL'))
 
-    
+
     def loadSeasonInfo(self, power, sched):
         if not (self.__loadBeatPower(power) and
                 self.__league.loadCsvSchedule(sched)):
@@ -197,7 +279,7 @@ class NFL:
     def __loadBeatPower(self, filename):
         logging.info("Loading beatpower from " + filename)
         try:
-            bpReader = csv.reader(open(filename), 
+            bpReader = csv.reader(open(filename),
                                   delimiter=',', quotechar='|')
             for row in bpReader:
                 team = self.__league.getTeam(row[0])
@@ -208,31 +290,46 @@ class NFL:
         except:
             print "Error parsing beatpower data"
             return False
-        
+
         return True
-    
+
 
 
     def simulateSeason(self, sigma):
         self.__league.simulateRegularSeason(sigma)
         self.__genRegularSeasonStandings()
+        self.__setWildCard()
 
-    
 
     def __genRegularSeasonStandings(self):
+        self.__standings.clear()
         confs = self.__league.getChildren()
         for cname in confs:
             conf = confs[cname]
-            leaders = []
+
             logging.info(conf.getName())
+            self.__standings[cname] = dict()
+
             divs = conf.getChildren()
             for dname in divs:
                 div = divs[dname]
                 logging.info(div.getName())
                 ranked = rankTeams(div.getTeams())
+
+                self.__standings[cname][dname] = ranked
+
                 for team in ranked:
                     logging.info(team.getName())
-                leaders.append(ranked.pop(0))
-            slotted = rankTeams(leaders, div=False)
-            for i in range(0,len(slotted)):
-                print ("%d: %s") % (i+1, slotted[i].getName())
+
+
+    def __setWildCard(self):
+        logging.debug("Setting postseason")
+        self.__postseason.clear()
+        for conf in self.__standings.keys():
+            logging.debug("Examining " + conf)
+            leaders = []
+            for div in self.__standings[conf].keys():
+                leaders.append(self.__standings[conf][div].pop(0))
+            self.__postseason[conf] = rankTeams(leaders, False)
+            for i in range(len(self.__postseason[conf])):
+                print ("%d. %s") % (i, self.__postseason[conf][i].getName())
