@@ -100,7 +100,7 @@ def breakDivTie(teams):
     if finished:
         return teams
     
-    coin = random.randint(0, len(teams))
+    coin = random.randint(0, len(teams)-1)
     logging.info(teams[coin].getAbbr() + " by coin flip")
     tmp         = teams[0]
     teams[0]    = teams[coin]
