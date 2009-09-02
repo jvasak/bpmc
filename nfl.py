@@ -213,8 +213,8 @@ class NFL:
     
 
 
-    def simulateSeason(self):
-        self.__league.simulateRegularSeason()
+    def simulateSeason(self, sigma):
+        self.__league.simulateRegularSeason(sigma)
         self.__genRegularSeasonStandings()
 
     

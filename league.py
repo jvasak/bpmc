@@ -99,15 +99,15 @@ class League(TeamGroup):
 
         return True
 
-    def simulateGame(self, home, away, ties=True):
+    def simulateGame(self, sigma, home, away, ties=True):
         confidence = home.getBeatPower() - away.getBeatPower()
         res = normalvariate(confidence, 50)
         while res == 0 and not ties:
-            res = normalvariate(confidence, 50)
+            res = normalvariate(confidence, sigma)
         return res
         
 
-    def simulateRegularSeason(self):
+    def simulateRegularSeason(self, sigma):
         for week in range(17):
             logging.debug("Simulating " + str(len(self.__sched[week])) + 
                           " games for week " + str(week))
@@ -116,7 +116,7 @@ class League(TeamGroup):
                 logging.debug("Sim: " + game[1] + " @ " + game[0])
                 home = self.getTeam(game[0])
                 away = self.getTeam(game[1])
-                res  = self.simulateGame(home, away)
+                res  = self.simulateGame(sigma, home, away)
                 if res >= 0:
                     #print "%3s d. %3s" % (home.getAbbr(), away.getAbbr())
                     home.addWin(away)
