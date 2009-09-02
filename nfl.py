@@ -58,12 +58,16 @@ def tieBreakStep(teams, opps, callback, msg):
         return (False, teams)
 
     elif brkIdx == 1:
-        teams[1:] = callback(teams[1:])
+        if not callback is None:
+            teams[1:] = callback(teams[1:])
         return (True, teams)
 
-    teams[:brkIdx] = callback(teams[:brkIdx])
-    teams[brkIdx:] = callback(teams[brkIdx:])
-    return (True, teams)
+    if not callback is None:
+        teams[:brkIdx] = callback(teams[:brkIdx])
+        teams[brkIdx:] = callback(teams[brkIdx:])
+        return (True, teams)
+    else:
+        return (False, teams[:brkIdx])
     
 
 def breakDivTie(teams):
