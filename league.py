@@ -208,7 +208,10 @@ class Team(TeamGroup):
                 wins += self.__wins.count(opp)
                 ties += self.__ties.count(opp)
                 loss += self.__losses.count(opp)
+        if (wins + ties + loss) == 0:
+            return -1
         return (wins + 0.5*ties)/float(wins + ties + loss)
+        
  
     def dumpGames(self):
         print ("%s: ") % self.getAbbr(),
