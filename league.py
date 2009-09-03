@@ -1,6 +1,5 @@
 #/usr/bin/python
 
-import string
 import csv
 import logging
 from array import array
@@ -161,10 +160,9 @@ class Team(TeamGroup):
         return self.__abbr
 
     def getName(self):
-        f = string.Formatter()
-        return f.format("%5s (%5.1f) %3d %3d" % (self.__abbr, self.__beatpower,
-                                                 len(self.__wins),
-                                                 len(self.__losses)))
+        return "%5s (%5.1f) %3d %3d" % (self.__abbr, self.__beatpower,
+                                        len(self.__wins),
+                                        len(self.__losses))
 
     def getBeatPower(self):
         return self.__beatpower
