@@ -299,6 +299,7 @@ class NFL:
         self.__league.simulateRegularSeason(sigma)
         self.__genRegularSeasonStandings()
         self.__setWildCard()
+        self.__simulatePostSeason(sigma)
 
 
     def __genRegularSeasonStandings(self):
@@ -328,8 +329,74 @@ class NFL:
         for conf in self.__standings.keys():
             logging.debug("Examining " + conf)
             leaders = []
+
+            # Rank division leaders
             for div in self.__standings[conf].keys():
                 leaders.append(self.__standings[conf][div].pop(0))
             self.__postseason[conf] = rankTeams(leaders, False)
+
+            # Now consider all the #2 folks for the first WC slot
+            for div in self.__standings[conf].keys():
+                leaders.append(self.__standings[conf][div].pop(0))
+            leaders = rankTeams(leaders, False)
+
+            wc = leaders.pop(0)
+            self.__postseason[conf].append(wc)
+            leaders.append(self.__standings[conf][wc.getParent().getAbbr()].pop(0))
+
+            leaders = rankTeams(leaders, False)
+            self.__postseason[conf].append(leaders[0])
+
             for i in range(len(self.__postseason[conf])):
                 print ("%d. %s") % (i, self.__postseason[conf][i].getName())
+
+
+
+    def __simulatePostSeason(self, sigma):
+        """Match up postseason opponents and simulate all games
+           through the Super Bowl"""
+        sbTeams = []
+        for conf in self.__postseason.keys():
+            teams = self.__postseason[conf]
+            divOpp = [None, None]
+            res = self.__league.simulateGame(sigma, teams[2], teams[5], ties=False)
+            if res > 0:
+                divOpp[1] = teams[2]
+            else:
+                divOpp[0] = teams[5]
+
+            res = self.__league.simulateGame(sigma, teams[3], teams[4], ties=False)
+            if res > 0:
+                if divOpp[0] is None:
+                    divOpp[0] = teams[3]
+                else:
+                    divOpp[1] = teams[3]
+            else:
+                if divOpp[0] is None:
+                    divOpp[0] = teams[4]
+                else:
+                    divOpp[1] = teams[4]
+
+            champ = []
+            res = self.__league.simulateGame(sigma, teams[0], divOpp[0], ties=False)
+            if res > 0:
+                champ.append(teams[0])
+            else:
+                champ.append(divOpp[0])
+            res = self.__league.simulateGame(sigma, teams[1], divOpp[1], ties=False)
+            if res > 0:
+                champ.append(teams[1])
+            else:
+                champ.append(divOpp[1])
+
+            res = self.__league.simulateGame(sigma, champ[0], champ[1], ties=False)
+            if res > 0:
+                sbTeams.append(champ[0])
+            else:
+                sbTeams.append(champ[1])
+
+        res = self.__league.simulateGame(sigma, sbTeams[0], sbTeams[1], ties=False)
+        if res > 0:
+            print "Super Bowl champ: " + sbTeams[0].getAbbr()
+        else:
+            print "Super Bowl champ: " + sbTeams[1].getAbbr()
