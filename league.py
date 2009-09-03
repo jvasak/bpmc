@@ -116,7 +116,7 @@ class League(TeamGroup):
                 home = self.getTeam(game[0])
                 away = self.getTeam(game[1])
                 res  = self.simulateGame(sigma, home, away)
-                if res >= 0:
+                if res > 0:
                     logging.debug(home.getAbbr() + " def. " + away.getAbbr())
                     home.addWin(away)
                     away.addLoss(home)
