@@ -4,7 +4,7 @@ import string
 import csv
 import logging
 from array import array
-from random import normalvariate
+from random import normalvariate, gauss
 from math import sqrt
 
 class TeamGroup:
@@ -102,9 +102,9 @@ class League(TeamGroup):
 
     def simulateGame(self, sigma, home, away, ties=True):
         confidence = home.getBeatPower() - away.getBeatPower()
-        res = normalvariate(confidence, sigma)
+        res = gauss(confidence, sigma)
         while res == 0 and not ties:
-            res = normalvariate(confidence, sigma)
+            res = gauss(confidence, sigma)
         return res
 
 
