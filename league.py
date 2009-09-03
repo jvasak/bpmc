@@ -102,7 +102,7 @@ class League(TeamGroup):
 
     def simulateGame(self, sigma, home, away, ties=True):
         confidence = home.getBeatPower() - away.getBeatPower()
-        res = normalvariate(confidence, 50)
+        res = normalvariate(confidence, sigma)
         while res == 0 and not ties:
             res = normalvariate(confidence, sigma)
         return res

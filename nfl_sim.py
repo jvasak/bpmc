@@ -17,12 +17,15 @@ def main():
     version = "%prog 0.10"
 
     parser = OptionParser(usage=usage, version=version)
+    parser.add_option("-i", "--iterations", dest="iterations", type="int",
+                      help="number of simulations to run",
+                      metavar="NUM", default=1000)
+    parser.add_option("-b", "--beatpower", dest="bpfile", type="string",
+                      help="csv file with beatpower scores",
+                      metavar="FILE")
     parser.add_option("-s", "--sigma", dest="sigma", type="float",
                       help="float value to use for variance",
                       metavar="SIGMA", default=50.0)
-    parser.add_option("-i", "--iterations", dest="iterations", type="int",
-                      help="number of simulations to run",
-                      metavar="ITERS", default=1000)
     parser.add_option('-l', '--logging-level', help='Logging level')
     parser.add_option('-f', '--logging-file', help='Logging file name')
     (options, args) = parser.parse_args()
@@ -34,19 +37,25 @@ def main():
 
     logging.debug("Option parsing finished with " + str(len(args)) + " args left")
 
-    if len(args) < 2:
+    if len(args) < 1:
         parser.print_help()
         sys.exit(1)
 
     league = NFL()
+    
+    if options.bpfile is not None:
+        if not league.loadBeatPower(options.bpfile):
+            logging.critical("Error loading beatpower file")
+            sys.exit(1)
 
-    if not league.loadSeasonInfo(args[0], args[1]):
+    if not league.loadSeasonInfo(args[0]):
+        logging.critical("Error loading season schedule")
         sys.exit(1)
 
     for i in range(options.iterations):
         league.simulateSeason(options.sigma)
 
-        league.printStats()
+    league.printStats()
 
     sys.exit(0)
 

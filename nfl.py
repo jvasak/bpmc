@@ -269,14 +269,13 @@ class NFL:
         nfcw.addChild(Team('St. Louis Rams',       'STL'))
 
 
-    def loadSeasonInfo(self, power, sched):
-        if not (self.__loadBeatPower(power) and
-                self.__league.loadCsvSchedule(sched)):
+    def loadSeasonInfo(self, sched):
+        if not self.__league.loadCsvSchedule(sched):
             return False
         return True
 
 
-    def __loadBeatPower(self, filename):
+    def loadBeatPower(self, filename):
         logging.info("Loading beatpower from " + filename)
         try:
             bpReader = csv.reader(open(filename),
