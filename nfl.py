@@ -283,11 +283,11 @@ class NFL:
             for row in bpReader:
                 team = self.__league.getTeam(row[0])
                 if team is None:
-                    print 'Cannot find team ' + row[0]
+                    logging.error('Cannot find team ' + row[0])
                 else:
                     team.setBeatPower(float(row[1]))
         except:
-            print "Error parsing beatpower data"
+            logging.error("Error parsing beatpower data")
             return False
 
         return True
@@ -403,10 +403,10 @@ class NFL:
         sbTeams[1].tallyConfChamp()
         res = self.__league.simulateGame(sigma, sbTeams[0], sbTeams[1], ties=False)
         if res > 0:
-            print "Super Bowl champ: " + sbTeams[0].getAbbr()
+            logging.info("Super Bowl champ: " + sbTeams[0].getAbbr())
             sbTeams[0].tallySuperBowl()
         else:
-            print "Super Bowl champ: " + sbTeams[1].getAbbr()
+            logging.info("Super Bowl champ: " + sbTeams[1].getAbbr())
             sbTeams[1].tallySuperBowl()
 
 

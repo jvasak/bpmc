@@ -94,7 +94,7 @@ class League(TeamGroup):
                 logging.debug("Wk " + row[wkIdx] + ": " + row[awIdx] + " @ " + row[hmIdx]);
 
         except:
-            print "Schedule parsing error"
+            logging.error("Schedule parsing error")
             return False
 
         return True
@@ -236,7 +236,7 @@ class Team(TeamGroup):
             print ("%s(L)  ") % l.getAbbr(),
         for t in self.__ties:
             print ("%s(T)  ") % t.getAbbr(),
-        print ""
+        print
 
     #
     # Team stats functions

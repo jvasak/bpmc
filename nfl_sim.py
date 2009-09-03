@@ -54,9 +54,13 @@ def main():
         sys.exit(1)
 
     random.seed()
-    for i in range(options.iterations):
+    for i in range(1, options.iterations + 1):
         league.simulateSeason(options.sigma)
+        if i % 10  == 0 and not i % 100 == 0: print '.',; sys.stdout.flush()
+        if i % 100 == 0:                      print '#',; sys.stdout.flush()
+        if i % 200 == 0:                      print ' %8d' % i
 
+    print
     league.printStats()
 
     sys.exit(0)
