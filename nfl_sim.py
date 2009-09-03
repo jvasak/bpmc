@@ -2,6 +2,7 @@
 
 import sys
 import logging
+import random
 from optparse import OptionParser
 
 from nfl import NFL
@@ -52,6 +53,7 @@ def main():
         logging.critical("Error loading season schedule")
         sys.exit(1)
 
+    random.seed()
     for i in range(options.iterations):
         league.simulateSeason(options.sigma)
 
