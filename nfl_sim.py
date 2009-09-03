@@ -20,6 +20,9 @@ def main():
     parser.add_option("-s", "--sigma", dest="sigma", type="float",
                       help="float value to use for variance",
                       metavar="SIGMA", default=50.0)
+    parser.add_option("-i", "--iterations", dest="iterations", type="int",
+                      help="number of simulations to run",
+                      metavar="ITERS", default=1000)
     parser.add_option('-l', '--logging-level', help='Logging level')
     parser.add_option('-f', '--logging-file', help='Logging file name')
     (options, args) = parser.parse_args()
@@ -36,14 +39,17 @@ def main():
         sys.exit(1)
 
     league = NFL()
-    
+
     if not league.loadSeasonInfo(args[0], args[1]):
         sys.exit(1)
 
-    league.simulateSeason(options.sigma)
-    
+    for i in range(options.iterations):
+        league.simulateSeason(options.sigma)
+
+        league.printStats()
+
     sys.exit(0)
-    
+
 
 if __name__ == "__main__":
     main()
@@ -55,7 +61,7 @@ if __name__ == "__main__":
 
     # Dump structure (debugging)
     # nfl.listChildren()
-    
+
     # Test getting of teams from conference
     #confs = nfl.getChildren()
     #for conf in confs:

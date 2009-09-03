@@ -3,6 +3,7 @@
 import string
 import csv
 import logging
+from array import array
 from random import normalvariate
 from math import sqrt
 
@@ -14,7 +15,7 @@ class TeamGroup:
         self.__child  = dict()
 
     def addChild(self, child):
-        if child.setParent(self): 
+        if child.setParent(self):
             self.__child[child.getAbbr()] = child
 
     def setParent(self, parent):
@@ -62,20 +63,20 @@ class TeamGroup:
 
 class League(TeamGroup):
     """Simple class not much more than a named list of conferences"""
-    
+
     def __init__(self, name='NFL'):
         TeamGroup.__init__(self, name)
         self.__sched = [[] for i in range(21)]
 
     def setParent(self, parent):
         return False
-    
+
     def loadCsvSchedule(self, csvfile):
         logging.info("Loading schedule from: " + csvfile)
         try:
-            skdReader = csv.reader(open(csvfile), 
+            skdReader = csv.reader(open(csvfile),
                                    delimiter=',', quotechar='|')
-            
+
             (wkIdx, awIdx, hmIdx) = (None, None, None)
             hdr = skdReader.next()
             for i in range(0, len(hdr)):
@@ -88,11 +89,11 @@ class League(TeamGroup):
                 elif hdr[i].lower() == 'home':
                     hmIdx = i
                     logging.debug("Home info in column " + str(i))
-        
+
             for row in skdReader:
                 self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
                 logging.debug("Wk " + row[wkIdx] + ": " + row[awIdx] + " @ " + row[hmIdx]);
-                
+
         except:
             print "Schedule parsing error"
             return False
@@ -105,11 +106,11 @@ class League(TeamGroup):
         while res == 0 and not ties:
             res = normalvariate(confidence, sigma)
         return res
-        
+
 
     def simulateRegularSeason(self, sigma):
         for week in range(17):
-            logging.debug("Simulating " + str(len(self.__sched[week])) + 
+            logging.debug("Simulating " + str(len(self.__sched[week])) +
                           " games for week " + str(week))
 
             for game in self.__sched[week]:
@@ -128,7 +129,7 @@ class League(TeamGroup):
                     logging.debug(away.getAbbr() + " def. " + home.getAbbr())
                     home.addLoss(away)
                     away.addWin(home)
-            
+
 
 
 
@@ -154,6 +155,7 @@ class Team(TeamGroup):
         self.__ties      = []
         self.__losses    = []
         self.__wpOpps    = []
+        self.__resetStats()
 
     def getAbbr(self):
         return self.__abbr
@@ -163,7 +165,7 @@ class Team(TeamGroup):
         return f.format("%5s (%5.1f) %3d %3d" % (self.__abbr, self.__beatpower,
                                                  len(self.__wins),
                                                  len(self.__losses)))
-    
+
     def getBeatPower(self):
         return self.__beatpower
 
@@ -202,7 +204,7 @@ class Team(TeamGroup):
                 logging.debug("Didn't play " + opp.getAbbr())
                 return False
         return True
-    
+
 
     def setWinPctOpponents(self, opps):
         self.resetWinPctOpponents()
@@ -226,8 +228,8 @@ class Team(TeamGroup):
         if (wins + ties + loss) == 0:
             return -1
         return (wins + 0.5*ties)/float(wins + ties + loss)
-        
- 
+
+
     def dumpGames(self):
         print ("%s: ") % self.getAbbr(),
         for w in self.__wins:
@@ -237,3 +239,41 @@ class Team(TeamGroup):
         for t in self.__ties:
             print ("%s(T)  ") % t.getAbbr(),
         print ""
+
+    #
+    # Team stats functions
+    #
+    def __resetStats(self):
+        self.__divStats  = array('I', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        self.__wcStats   = 0
+        self.__confChamp = 0
+        self.__sbWins    = 0
+
+    def tallyDivisionPlace(self, rank):
+        self.__divStats[rank] += 1
+
+    def getAvgDivPlace(self):
+        num = 0.0
+        for i in range(len(self.__divStats)):
+            num += (i+1)*self.__divStats[i]
+        return num / float(sum(self.__divStats))
+
+    def tallyWildCard(self):
+        self.__wcStats += 1
+
+    def getPostseasonPct(self):
+        psApps = self.__divStats[0] + self.__wcStats
+        runs   = sum(self.__divStats)
+        return float(psApps) / float(runs)
+
+    def tallyConfChamp(self):
+        self.__confChamp += 1
+
+    def getConfChampPct(self):
+        return float(self.__confChamp) / float(sum(self.__divStats))
+
+    def tallySuperBowl(self):
+        self.__sbWins += 1
+
+    def getSuperBowlPct(self):
+        return float(self.__sbWins) / float(sum(self.__divStats))

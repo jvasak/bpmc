@@ -319,8 +319,9 @@ class NFL:
 
                 self.__standings[cname][dname] = ranked
 
-                for team in ranked:
-                    logging.info(team.getName())
+                for i in range(len(ranked)):
+                    logging.info(ranked[i].getName())
+                    ranked[i].tallyDivisionPlace(i)
 
 
     def __setWildCard(self):
@@ -340,15 +341,19 @@ class NFL:
                 leaders.append(self.__standings[conf][div].pop(0))
             leaders = rankTeams(leaders, False)
 
+            # Get the next team from the division of the first WC team
             wc = leaders.pop(0)
+            wc.tallyWildCard()
             self.__postseason[conf].append(wc)
             leaders.append(self.__standings[conf][wc.getParent().getAbbr()].pop(0))
 
+            # Select WC #2
             leaders = rankTeams(leaders, False)
+            leaders[0].tallyWildCard()
             self.__postseason[conf].append(leaders[0])
 
             for i in range(len(self.__postseason[conf])):
-                print ("%d. %s") % (i, self.__postseason[conf][i].getName())
+                logging.info(str(i) + ". " + self.__postseason[conf][i].getName())
 
 
 
@@ -395,8 +400,35 @@ class NFL:
             else:
                 sbTeams.append(champ[1])
 
+        sbTeams[0].tallyConfChamp()
+        sbTeams[1].tallyConfChamp()
         res = self.__league.simulateGame(sigma, sbTeams[0], sbTeams[1], ties=False)
         if res > 0:
             print "Super Bowl champ: " + sbTeams[0].getAbbr()
+            sbTeams[0].tallySuperBowl()
         else:
             print "Super Bowl champ: " + sbTeams[1].getAbbr()
+            sbTeams[1].tallySuperBowl()
+
+
+    def printStats(self):
+        confs = self.__league.getChildren()
+        for cname in confs:
+            print cname
+            conf = confs[cname]
+
+            divs = conf.getChildren()
+            for dname in divs:
+                print "  " + dname
+                div = divs[dname]
+
+                teams = div.getTeams()
+                teams.sort(key=Team.getAvgDivPlace)
+
+                for team in teams:
+                    print ("    %-3s (%5.1f)  %4.2f   %6.4f   %6.4f   %6.4f") % (team.getAbbr(),
+                                                                                 team.getBeatPower(),
+                                                                                 team.getAvgDivPlace(),
+                                                                                 team.getPostseasonPct(),
+                                                                                 team.getConfChampPct(),
+                                                                                 team.getSuperBowlPct())
