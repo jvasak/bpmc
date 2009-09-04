@@ -67,7 +67,7 @@ def tieBreakStep(teams, opps, callback, msg):
         teams[brkIdx:] = callback(teams[brkIdx:])
         return (True, teams)
     else:
-        return (False, teams[:brkIdx])
+        return (False, teams)
 
 
 def breakDivTie(teams):
@@ -355,8 +355,6 @@ class NFL:
             leaders = rankTeams(leaders, False)
             leaders[0].tallyWildCard()
             self.__postseason[conf].append(leaders[0])
-
-            assert(len(self.__postseason[conf]) == 6)
 
             for i in range(len(self.__postseason[conf])):
                 logging.info(str(i) + ". " + self.__postseason[conf][i].getName())
