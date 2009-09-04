@@ -150,10 +150,7 @@ class Team(TeamGroup):
         TeamGroup.__init__(self, name);
         self.__abbr      = abbr;
         self.__beatpower = 0.0
-        self.__wins      = []
-        self.__ties      = []
-        self.__losses    = []
-        self.__wpOpps    = []
+        self.resetGames()
         self.__resetStats()
 
     def getAbbr(self):
@@ -188,6 +185,12 @@ class Team(TeamGroup):
         opps.extend(self.__losses)
         opps.extend(self.__ties)
         return opps
+
+    def resetGames(self):
+        self.__wins      = []
+        self.__ties      = []
+        self.__losses    = []
+        self.__wpOpps    = []        
 
     def playedEach(self, opps):
         """Returns true if team had played each of the opponent

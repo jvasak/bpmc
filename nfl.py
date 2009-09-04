@@ -274,6 +274,13 @@ class NFL:
             return False
         return True
 
+    def resetSeason(self):
+        teams = self.__league.getTeams()
+        for team in teams:
+            team.resetGames()
+        self.__postseason.clear()
+        self.__standings.clear()
+
 
     def loadBeatPower(self, filename):
         logging.info("Loading beatpower from " + filename)
@@ -293,7 +300,6 @@ class NFL:
         return True
 
 
-
     def simulateSeason(self, sigma):
         self.__league.simulateRegularSeason(sigma)
         self.__genRegularSeasonStandings()
@@ -301,8 +307,8 @@ class NFL:
         self.__simulatePostSeason(sigma)
 
 
+
     def __genRegularSeasonStandings(self):
-        self.__standings.clear()
         confs = self.__league.getChildren()
         for cname in confs:
             conf = confs[cname]
@@ -325,7 +331,6 @@ class NFL:
 
     def __setWildCard(self):
         logging.debug("Setting postseason")
-        self.__postseason.clear()
         for conf in self.__standings.keys():
             logging.debug("Examining " + conf)
             leaders = []
