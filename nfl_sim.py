@@ -14,7 +14,7 @@ LOGGING_LEVELS = {'critical': logging.CRITICAL,
                   'debug'   : logging.DEBUG}
 
 def main():
-    usage   = "usage: %prog [options] beatpower.csv schedule.csv"
+    usage   = "usage: %prog [options] schedule.csv"
     version = "%prog 0.10"
 
     parser = OptionParser(usage=usage, version=version)
