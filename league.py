@@ -72,11 +72,12 @@ class League(TeamGroup):
 
     def loadCsvSchedule(self, csvfile):
         logging.info("Loading schedule from: " + csvfile)
+        self.__partial = False
         try:
             skdReader = csv.reader(open(csvfile),
                                    delimiter=',', quotechar='|')
 
-            (wkIdx, awIdx, hmIdx) = (None, None, None)
+            (wkIdx, awIdx, hmIdx, awScrIdx, hmScrIdx) = (None, None, None, None, None)
             hdr = skdReader.next()
             for i in range(0, len(hdr)):
                 if   hdr[i].lower() == 'week':
@@ -88,16 +89,48 @@ class League(TeamGroup):
                 elif hdr[i].lower() == 'home':
                     hmIdx = i
                     logging.debug("Home info in column " + str(i))
+                elif hdr[i].lower() == 'awayscore':
+                    awScrIdx = i
+                    logging.debug("Away score in column " + str(i))
+                elif hdr[i].lower() == 'homescore':
+                    hmScrIdx = i
+                    logging.debug("Home score in column " + str(i))
 
             for row in skdReader:
-                self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
-                logging.debug("Wk " + row[wkIdx] + ": " + row[awIdx] + " @ " + row[hmIdx]);
+                logging.debug("Wk " + row[wkIdx] + ": " + row[awIdx] + " " + row[awScrIdx] +
+                              " @ " + row[hmScrIdx] + " " + row[hmIdx]);
+                if row[awScrIdx] == '--' or row[awScrIdx] == '--':
+                    self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
+                else:
+                    self.__partial = True
+                    home = self.getTeam(row[hmIdx])
+                    away = self.getTeam(row[awIdx])
+                    if row[hmScrIdx] > row[awScrIdx]:
+                        home.addWin(away)
+                        away.addLoss(home)
+                    elif row[awScrIdx] > row[hmScrIdx]:
+                        away.addWin(home)
+                        home.addLoss(away)
+                    else:
+                        home.addTie(away)
+                        away.addTie(home)
 
         except:
             logging.error("Schedule parsing error")
             return False
 
+        if self.__partial:
+            teams = self.getTeams()
+            for team in teams:
+                team.saveSnapshot()
+
         return True
+
+
+
+    def isPartialSeason(self):
+        return self.__partial
+
 
     def simulateGame(self, home, away, ties=True):
         confidence = home.getBeatPower() - away.getBeatPower()
@@ -132,7 +165,6 @@ class League(TeamGroup):
 
 
 
-
 class Conference(TeamGroup):
     """Simple class not much more than a named list of divisions"""
     pass
@@ -152,7 +184,12 @@ class Team(TeamGroup):
         self.__abbr          = abbr;
         self.__beatpower     = 0.0
         self.__relationships = 0
-        self.resetGames()
+        self.__wins   = []
+        self.__ties   = []
+        self.__losses = []
+        self.__winSnap  = []
+        self.__tieSnap  = []
+        self.__lossSnap = []
         self.__resetStats()
 
     def getAbbr(self):
@@ -192,11 +229,30 @@ class Team(TeamGroup):
         opps.extend(self.__ties)
         return opps
 
+    def saveSnapshot(self):
+        logging.debug("Saving snaphot for " + self.getAbbr())
+        if len(self.__wins):
+            self.__winSnap.extend(self.__wins)
+        if len(self.__ties):
+            self.__tieSnap.extend(self.__ties)
+        if len(self.__losses):
+            self.__lossSnap.extend(self.__losses)
+
     def resetGames(self):
         self.__wins      = []
+        if len(self.__winSnap):
+            self.__wins.extend(self.__winSnap)
+
         self.__ties      = []
+        if len(self.__tieSnap):
+            self.__ties.extend(self.__tieSnap)
+
         self.__losses    = []
-        self.__wpOpps    = []        
+        if len(self.__lossSnap):
+            self.__losses.extend(self.__lossSnap)
+
+        self.__wpOpps    = []
+
 
     def playedEach(self, opps):
         """Returns true if team had played each of the opponent
@@ -238,13 +294,13 @@ class Team(TeamGroup):
 
 
     def dumpGames(self):
-        print ("%s: ") % self.getAbbr(),
+        print ("%3s: ") % self.getAbbr(),
         for w in self.__wins:
-            print ("%s(W)  ") % w.getAbbr(),
+            print ("%3s(W)  ") % w.getAbbr(),
         for l in self.__losses:
-            print ("%s(L)  ") % l.getAbbr(),
+            print ("%3s(L)  ") % l.getAbbr(),
         for t in self.__ties:
-            print ("%s(T)  ") % t.getAbbr(),
+            print ("%3s(T)  ") % t.getAbbr(),
         print
 
     #

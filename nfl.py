@@ -270,11 +270,10 @@ class NFL:
 
 
     def loadSeasonInfo(self, sched):
-        if not self.__league.loadCsvSchedule(sched):
-            return False
-        return True
+        return self.__league.loadCsvSchedule(sched)
 
-    def resetSeason(self):
+
+    def __resetSeason(self):
         teams = self.__league.getTeams()
         for team in teams:
             team.resetGames()
@@ -300,7 +299,12 @@ class NFL:
         return True
 
 
+    def isPartialSeason(self):
+        return self.__league.isPartialSeason()
+
+
     def simulateSeason(self):
+        self.__resetSeason()
         self.__league.simulateRegularSeason()
         self.__genRegularSeasonStandings()
         self.__setWildCard()

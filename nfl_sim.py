@@ -40,20 +40,22 @@ def main():
         sys.exit(1)
 
     league = NFL()
-    
-    if options.bpfile is not None:
-        if not league.loadBeatPower(options.bpfile):
-            logging.critical("Error loading beatpower file")
-            sys.exit(1)
 
     if not league.loadSeasonInfo(args[0]):
         logging.critical("Error loading season schedule")
         sys.exit(1)
 
+    if options.bpfile is not None:
+        if league.isPartialSeason():
+            logging.warn("Cannot overwrite partial season beatpower")
+        else:
+            if not league.loadBeatPower(options.bpfile):
+                logging.critical("Error loading beatpower file")
+                sys.exit(1)
+
     random.seed()
     for i in range(1, options.iterations + 1):
         league.simulateSeason()
-        league.resetSeason()
         if i % 10  == 0 and not i % 100 == 0: print '.',; sys.stdout.flush()
         if i % 100 == 0:                      print '#',; sys.stdout.flush()
         if i % 200 == 0:                      print ' %8d' % i
