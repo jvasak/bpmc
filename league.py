@@ -148,8 +148,9 @@ class Team(TeamGroup):
 
     def __init__(self, name, abbr):
         TeamGroup.__init__(self, name);
-        self.__abbr      = abbr;
-        self.__beatpower = 0.0
+        self.__abbr          = abbr;
+        self.__beatpower     = 0.0
+        self.__relationships = 0
         self.resetGames()
         self.__resetStats()
 
@@ -164,8 +165,12 @@ class Team(TeamGroup):
     def getBeatPower(self):
         return self.__beatpower
 
-    def setBeatPower(self, power):
-        self.__beatpower = power
+    def getRelationships(self):
+        return self.__relationships
+
+    def setBeatPower(self, power, rels):
+        self.__beatpower     = power
+        self.__relationships = rels
 
     def addWin(self, team):
         self.__wins.append(team)

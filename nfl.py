@@ -292,7 +292,7 @@ class NFL:
                 if team is None:
                     logging.error('Cannot find team ' + row[0])
                 else:
-                    team.setBeatPower(float(row[1]))
+                    team.setBeatPower(float(row[1]), int(row[2]))
         except:
             logging.error("Error parsing beatpower data")
             return False
