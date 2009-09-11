@@ -5,9 +5,6 @@ import re
 import csv
 from optparse import OptionParser
 
-def resetTeamPower():
-    return (None, None)
-
 def loadTeamDict():
     return (dict({'colts'     : 'IND',
                   'jets'      : 'NYJ',
@@ -35,7 +32,7 @@ def loadTeamDict():
                   'redskins'  : 'WAS',
                   'browns'    : 'CLE',
                   'raiders'   : 'OAK',
-                  'jaguars'   : 'JAX',
+                  'jaguars'   : 'JAC',
                   'packers'   : 'GB',
                   'chiefs'    : 'KC',
                   'seahawks'  : 'SEA',
@@ -69,9 +66,10 @@ if __name__ == "__main__":
                           quotechar='|', quoting=csv.QUOTE_MINIMAL) 
 
     with open(options.filename) as f:
-        (team, power) = resetTeamPower()
+        (team, power) = (None, None)
         team_re  = re.compile('nflimg.(\w+)_65')
         power_re = re.compile('<h3>([0-9\.]+)</h3>')
+        rels_re  = re.compile('<font size="-2">.*/([0-9]+)\)</font>')
         curr_re  = team_re
         for line in f:
             res = curr_re.search(line)
@@ -79,9 +77,12 @@ if __name__ == "__main__":
                 if team is None:
                     team = res.group(1)
                     curr_re = power_re
+                elif power is None:
+                    power = res.group(1)
+                    curr_re = rels_re
                 else:
-                    bpWriter.writerow([teamMap[team], res.group(1)])
-                    (team, power) = resetTeamPower()
+                    bpWriter.writerow([teamMap[team], power, res.group(1)])
+                    (team, power) = (None, None)
                     curr_re = team_re
 
     sys.exit(0)
