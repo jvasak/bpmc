@@ -24,9 +24,6 @@ def main():
     parser.add_option("-b", "--beatpower", dest="bpfile", type="string",
                       help="csv file with beatpower scores",
                       metavar="FILE")
-    parser.add_option("-s", "--sigma", dest="sigma", type="float",
-                      help="float value to use for variance",
-                      metavar="SIGMA", default=50.0)
     parser.add_option('-l', '--logging-level', help='Logging level')
     parser.add_option('-f', '--logging-file', help='Logging file name')
     (options, args) = parser.parse_args()
@@ -55,7 +52,7 @@ def main():
 
     random.seed()
     for i in range(1, options.iterations + 1):
-        league.simulateSeason(options.sigma)
+        league.simulateSeason()
         league.resetSeason()
         if i % 10  == 0 and not i % 100 == 0: print '.',; sys.stdout.flush()
         if i % 100 == 0:                      print '#',; sys.stdout.flush()

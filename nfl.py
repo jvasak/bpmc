@@ -300,11 +300,11 @@ class NFL:
         return True
 
 
-    def simulateSeason(self, sigma):
-        self.__league.simulateRegularSeason(sigma)
+    def simulateSeason(self):
+        self.__league.simulateRegularSeason()
         self.__genRegularSeasonStandings()
         self.__setWildCard()
-        self.__simulatePostSeason(sigma)
+        self.__simulatePostSeason()
 
 
 
@@ -361,20 +361,20 @@ class NFL:
 
 
 
-    def __simulatePostSeason(self, sigma):
+    def __simulatePostSeason(self):
         """Match up postseason opponents and simulate all games
            through the Super Bowl"""
         sbTeams = []
         for conf in self.__postseason.keys():
             teams = self.__postseason[conf]
             divOpp = [None, None]
-            res = self.__league.simulateGame(sigma, teams[2], teams[5], ties=False)
+            res = self.__league.simulateGame(teams[2], teams[5], ties=False)
             if res > 0:
                 divOpp[1] = teams[2]
             else:
                 divOpp[0] = teams[5]
 
-            res = self.__league.simulateGame(sigma, teams[3], teams[4], ties=False)
+            res = self.__league.simulateGame(teams[3], teams[4], ties=False)
             if res > 0:
                 if divOpp[0] is None:
                     divOpp[0] = teams[3]
@@ -387,18 +387,18 @@ class NFL:
                     divOpp[1] = teams[4]
 
             champ = []
-            res = self.__league.simulateGame(sigma, teams[0], divOpp[0], ties=False)
+            res = self.__league.simulateGame(teams[0], divOpp[0], ties=False)
             if res > 0:
                 champ.append(teams[0])
             else:
                 champ.append(divOpp[0])
-            res = self.__league.simulateGame(sigma, teams[1], divOpp[1], ties=False)
+            res = self.__league.simulateGame(teams[1], divOpp[1], ties=False)
             if res > 0:
                 champ.append(teams[1])
             else:
                 champ.append(divOpp[1])
 
-            res = self.__league.simulateGame(sigma, champ[0], champ[1], ties=False)
+            res = self.__league.simulateGame(champ[0], champ[1], ties=False)
             if res > 0:
                 sbTeams.append(champ[0])
             else:
@@ -406,7 +406,7 @@ class NFL:
 
         sbTeams[0].tallyConfChamp()
         sbTeams[1].tallyConfChamp()
-        res = self.__league.simulateGame(sigma, sbTeams[0], sbTeams[1], ties=False)
+        res = self.__league.simulateGame(sbTeams[0], sbTeams[1], ties=False)
         if res > 0:
             logging.info("Super Bowl champ: " + sbTeams[0].getAbbr())
             sbTeams[0].tallySuperBowl()
