@@ -12,6 +12,7 @@ class TeamGroup:
         self.__name   = name
         self.__parent = None
         self.__child  = dict()
+        self.__colors = ('black', 'gray')
 
     def addChild(self, child):
         if child.setParent(self):
@@ -59,6 +60,12 @@ class TeamGroup:
     def getAbbr(self):
         return self.getName()
 
+    def setColors(self, line, fill):
+        self.__colors = (line, fill)
+
+    def getColors(self):
+        return self.__colors
+
 
 class League(TeamGroup):
     """Simple class not much more than a named list of conferences"""
@@ -105,10 +112,10 @@ class League(TeamGroup):
                     self.__partial = True
                     home = self.getTeam(row[hmIdx])
                     away = self.getTeam(row[awIdx])
-                    if row[hmScrIdx] > row[awScrIdx]:
+                    if int(row[hmScrIdx]) > int(row[awScrIdx]):
                         home.addWin(away)
                         away.addLoss(home)
-                    elif row[awScrIdx] > row[hmScrIdx]:
+                    elif int(row[awScrIdx]) > int(row[hmScrIdx]):
                         away.addWin(home)
                         home.addLoss(away)
                     else:
@@ -123,6 +130,12 @@ class League(TeamGroup):
             teams = self.getTeams()
             for team in teams:
                 team.saveSnapshot()
+
+            # Build me a graph!
+            from beatpath import Beatpath
+            bp = Beatpath(self)
+            bp.buildGraph()
+            bp.genBeatScores()
 
         return True
 
@@ -213,11 +226,29 @@ class Team(TeamGroup):
     def addWin(self, team):
         self.__wins.append(team)
 
+    def delWin(self, team):
+        self.__wins.remove(team)
+
+    def getWins(self):
+        return self.__wins
+
     def addTie(self, team):
-        self__ties.append(team)
+        self.__ties.append(team)
+
+    def delTie(self, team):
+        self.__ties.remove(team)
+
+    def getTies(self):
+        return self.__ties
 
     def addLoss(self, team):
         self.__losses.append(team)
+
+    def delLoss(self, team):
+        self.__losses.remove(team)
+
+    def getLosses(self):
+        return self.__losses
 
     def getRecord(self):
         return (len(self.__wins), len(self.__losses))

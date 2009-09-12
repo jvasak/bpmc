@@ -1,0 +1,162 @@
+from pygraphviz import *
+import Image
+
+import logging
+import tempfile
+
+from league import League
+from league import Conference
+from league import Division
+from league import Team
+
+class Beatpath:
+
+    def __init__(self, leag):
+        self.__leag  = leag
+        self.__gr    = None
+        self.__tDict = dict()
+
+    def buildGraph(self, display=True):
+        if self.__gr is not None:
+            logging.error("Graph already exists!")
+            return
+
+        gr = AGraph()
+
+        gr.graph_attr['size'] = '12,12'
+        gr.graph_attr['bgcolor'] = 'gray87'
+
+        gr.node_attr['shape'] = 'box'
+        gr.node_attr['style'] = 'filled'
+
+        gr.edge_attr['dir'] = 'forward'
+        gr.edge_attr['color'] = 'black'
+
+        teams = self.__leag.getTeams()
+        teams.sort(key=Team.getAbbr)
+
+        # First create the nodes, so we can set
+        # attibutes
+        for team in teams:
+            colors = team.getParent().getColors()
+            gr.add_node(team.getAbbr())
+            n = gr.get_node(team.getAbbr())
+            n.attr['name'] = team.getAbbr()
+            n.attr['color'] = 'black'
+            n.attr['fontcolor'] = colors[0]
+            n.attr['fillcolor'] = colors[1]
+            #n.attr['label'] = '<<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD>' + team.getAbbr() + \
+            #'</TD></TR><TR><TD><IMG SRC="/home/jvasak/ffstats/logos/' + team.getAbbr() + '.png" /></TD></TR></TABLE>>'
+
+
+        # Now loop over them to process games
+        for team in teams:
+            wins = team.getWins()
+            for beaten in wins:
+                gr.add_edge(team.getAbbr(), beaten.getAbbr())
+
+
+        # Clean up
+        self.__findAndRemoveBeatloops(gr, len(teams))
+        self.__findAndRemoveRedundant(gr)
+
+        # Output
+        logging.debug(gr.string())
+        (htmp, tmpname) = tempfile.mkstemp(suffix='.png', text=True)
+        gr.draw(tmpname, prog="dot")
+        logging.info("Wrote graph to " + tmpname)
+        Image.open(tmpname).show()
+
+        self.__gr = gr
+
+
+    ####################
+    #
+    def __findLoop(self, gr, curNode, startNode, depth):
+        """ Find loop by recursively checking if current node can get back to start node """
+        loopEdges = []
+
+        if (depth <= 0):
+            return loopEdges
+
+        for edge in gr.out_edges(nbunch=[curNode]):
+            node = edge[1]
+            if (node == startNode):
+                loopEdges.append(edge)
+            else:
+                newEdges = self.__findLoop(gr, node, startNode, depth-1)
+                if (len(newEdges) > 0):
+                    for recursiveEdge in newEdges:
+                        loopEdges.append(recursiveEdge)
+                    loopEdges.append(edge)
+
+        return loopEdges
+
+    ####################
+    #
+    def __findAndRemoveBeatloops(self, gr, numTeams):
+        """ Loop over all nodes in graph to find loops and remove them """
+        #gv.render(gr, 'png', 'BP_d0.png')
+
+        for maxDepth in (range(2,numTeams+1)):
+            badEdges = []
+
+            for node in gr.nodes():
+                loops = self.__findLoop(gr, node, node, maxDepth)
+                for edge in loops:
+                    if (badEdges.count(edge) == 0):
+                        badEdges.append(edge)
+
+            if (len(badEdges) > 0):
+                #file =  'BP_d' + str(maxDepth) + '.png'
+                #for edge in badEdges:
+                #    gv.setv(edge, 'color', 'red')
+                #gv.render(h_gr, 'png', file)
+
+                print "Found loops at depth %d.  Removing" % maxDepth
+                for edge in badEdges:
+                    #n1 = gv.headof(edge)
+                    #n2 = gv.tailof(edge)
+                    #print "\t%s -> %s" % (gv.nameof(n1), gv.nameof(n2))
+                    gr.delete_edge(edge[0], edge[1])
+
+
+    ####################
+    #
+    def __removeOneAway(self, gr, node, start, closest):
+        """ Recursively move any redundant links """
+        for edge in gr.out_edges([node]):
+            if edge[1] in closest:
+                closest.remove(edge[1])
+                gr.delete_edge(start, edge[1])
+            closest = self.__removeOneAway(gr, edge[1], start, closest)
+
+        return closest
+
+
+    ####################
+    #
+    def __findAndRemoveRedundant(self, gr):
+        """ Iterate over all nodes in graph to remove redundant links to beaten teams """
+        #gv.render(h_gr, 'png', 'BP_e0.png')
+
+        for curNode in gr.nodes():
+            # Find everything one away.  If we see these later,
+            # we can quickly remove them
+            closest = []
+            for edge in gr.out_edges([curNode]):
+                if edge[1] not in closest:
+                    closest.append(edge[1])
+                else:
+                    gr.delete_edge(edge[0], edge[1])
+
+            # Now recursively dive down looking for these one
+            # away nodes
+            for edge in gr.out_edges([curNode]):
+                closest = self.__removeOneAway(gr, edge[1], curNode, closest)
+
+
+    ####################
+    #
+    def genBeatScores(self):
+        pass

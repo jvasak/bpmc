@@ -209,9 +209,16 @@ class NFL:
         self.__league.addChild(nfc)
 
         afce = Division('East')
+        afce.setColors('black', 'red')
+
         afcn = Division('North')
+        afcn.setColors('yellow', 'blue')
+
         afcs = Division('South')
+        afcs.setColors('black', 'white')
+
         afcw = Division('West')
+        afcw.setColors('black', 'orange')
 
         afc.addChild(afce)
         afc.addChild(afcn)
@@ -239,9 +246,16 @@ class NFL:
         afcw.addChild(Team('San Diego Chargers',   'SD'))
 
         nfce = Division('East')
+        nfce.setColors('black', 'darkgreen')
+
         nfcc = Division('Central')
+        nfcc.setColors('orange', 'black')
+
         nfcs = Division('South')
+        nfcs.setColors('black', 'lightblue')
+
         nfcw = Division('West')
+        nfcw.setColors('black', 'yellow')
 
         nfc.addChild(nfce)
         nfc.addChild(nfcc)
