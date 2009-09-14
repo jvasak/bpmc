@@ -4,10 +4,11 @@ import logging
 import csv
 import random
 
-from league import League
-from league import Conference
-from league import Division
-from league import Team
+from teamgroup  import TeamGroup
+from league     import League
+from conference import Conference
+from division   import Division
+from team       import Team
 
 
 def rankTeams(teams, div=True):

@@ -5,9 +5,7 @@ import logging
 import tempfile
 
 from league import League
-from league import Conference
-from league import Division
-from league import Team
+from team import Team
 
 class Beatpath:
 
