@@ -21,9 +21,9 @@ class Beatpath:
             logging.error("Graph already exists!")
             return
 
-        gr = AGraph()
+        gr = AGraph(strict=False)
 
-        gr.graph_attr['size'] = '12,12'
+        gr.graph_attr['size']    = '12,12'
         gr.graph_attr['bgcolor'] = 'gray87'
 
         gr.node_attr['shape'] = 'box'
@@ -97,15 +97,19 @@ class Beatpath:
     def __findAndRemoveBeatloops(self, gr, numTeams):
         """ Loop over all nodes in graph to find loops and remove them """
         #gv.render(gr, 'png', 'BP_d0.png')
+        self.__loops = dict()
+        for node in gr.nodes():
+            self.__loops[node] = set()
 
         for maxDepth in (range(2,numTeams+1)):
-            badEdges = []
+            badEdges = set()
 
             for node in gr.nodes():
                 loops = self.__findLoop(gr, node, node, maxDepth)
                 for edge in loops:
-                    if (badEdges.count(edge) == 0):
-                        badEdges.append(edge)
+                    print node + ": " + edge[0] + " => " + edge[1]
+                    self.__loops[node].add(edge[0])
+                    badEdges.add(edge)
 
             if (len(badEdges) > 0):
                 #file =  'BP_d' + str(maxDepth) + '.png'
@@ -159,4 +163,41 @@ class Beatpath:
     ####################
     #
     def genBeatScores(self):
-        pass
+
+        for node in self.__gr.nodes():
+            winSet  = self.__gatherDown(node)
+            lossSet = self.__gatherUp(node)
+
+            self.__loops[node] -= winSet | lossSet
+            self.__loops[node].discard(node)
+
+            wins     = len(winSet)
+            losses   = len(lossSet)
+            loopRels = len(self.__loops[node])
+
+            totRels   = wins + losses + loopRels
+            beatPower = (wins / float(totRels)) - (losses / float(totRels))
+            beatPower = (beatPower + 1) * 50
+
+            self.__leag.getTeam(node).setBeatPower(beatPower, totRels)
+
+            #print ("%3s: %d/%d - %d/%d = %5.1f") % (node,
+            #                                        wins, totRels,
+            #                                        losses, totRels,
+            #                                        beatPower)
+
+    def __gatherDown(self, node):
+        nodes = set()
+        for edge in self.__gr.out_edges([node]):
+            nodes.add(edge[1])
+            for lower in self.__gatherDown(edge[1]):
+                nodes.add(lower)
+        return nodes
+
+    def __gatherUp(self, node):
+        nodes = set()
+        for edge in self.__gr.in_edges(node):
+            nodes.add(edge[0])
+            for higher in self.__gatherUp(edge[0]):
+                nodes.add(higher)
+        return nodes

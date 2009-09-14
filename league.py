@@ -226,29 +226,14 @@ class Team(TeamGroup):
     def addWin(self, team):
         self.__wins.append(team)
 
-    def delWin(self, team):
-        self.__wins.remove(team)
-
     def getWins(self):
         return self.__wins
 
     def addTie(self, team):
         self.__ties.append(team)
 
-    def delTie(self, team):
-        self.__ties.remove(team)
-
-    def getTies(self):
-        return self.__ties
-
     def addLoss(self, team):
         self.__losses.append(team)
-
-    def delLoss(self, team):
-        self.__losses.remove(team)
-
-    def getLosses(self):
-        return self.__losses
 
     def getRecord(self):
         return (len(self.__wins), len(self.__losses))
