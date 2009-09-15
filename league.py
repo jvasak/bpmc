@@ -9,14 +9,31 @@ from math   import sqrt
 from teamgroup import TeamGroup
 
 class League(TeamGroup):
-    """Simple class not much more than a named list of conferences"""
 
-    def __init__(self, name='NFL'):
+    def __init__(self, name='Default'):
         TeamGroup.__init__(self, name)
         self.__sched = [[] for i in range(21)]
 
     def setParent(self, parent):
+        logger.warn("Attempted to set parent for League.  Ignored")
         return False
+
+    def loadBeatPower(self, filename):
+        logging.info("Loading beatpower from " + filename)
+        try:
+            bpReader = csv.reader(open(filename),
+                                  delimiter=',', quotechar='|')
+            for row in bpReader:
+                team = self.getTeam(row[0])
+                if team is None:
+                    logging.error('Cannot find team ' + row[0])
+                else:
+                    team.setBeatPower(float(row[1]), int(row[2]))
+        except:
+            logging.error("Error parsing beatpower data")
+            return False
+
+        return True
 
     def loadCsvSchedule(self, csvfile):
         logging.info("Loading schedule from: " + csvfile)
@@ -81,9 +98,18 @@ class League(TeamGroup):
         return True
 
 
-
     def isPartialSeason(self):
         return self.__partial
+
+
+    def simulateSeason(self):
+        teams = self.getTeams()
+        for team in teams:
+            team.resetGames()
+        self.onResetSeason()
+
+        self.simulateRegularSeason()
+        self.simulatePostSeason()
 
 
     def simulateGame(self, home, away, ties=True):
@@ -96,14 +122,14 @@ class League(TeamGroup):
 
 
     def simulateRegularSeason(self):
-        for week in range(17):
+        for week in range(self.weeksInRegularSeason()):
             logging.debug("Simulating " + str(len(self.__sched[week])) +
                           " games for week " + str(week))
 
             for game in self.__sched[week]:
                 home = self.getTeam(game[0])
                 away = self.getTeam(game[1])
-                res  = self.simulateGame(home, away)
+                res  = self.simulateGame(home, away, ties=self.allowTies())
                 if res > 0:
                     logging.debug(home.getAbbr() + " def. " + away.getAbbr())
                     home.addWin(away)
@@ -116,4 +142,35 @@ class League(TeamGroup):
                     logging.debug(away.getAbbr() + " def. " + home.getAbbr())
                     home.addLoss(away)
                     away.addWin(home)
+
+
+    #########################
+    #
+    # Hooks for subclasses
+
+    def onResetSeason(self):
+        """ Hook for subclasses to reset any internal state
+            before the start of a new iteration.  Can be 
+            ignored if not used. """
+        pass
+
+
+    def weeksInRegularSeason(self):
+        """ Set the proper number of weeks to consider when
+            simulating the regular season """
+        return 0
+
+
+    def allowTies(self):
+        """ Allows subclasses to determine if regular season
+            tie games will be allowed """
+        return True
+
+
+    def simulatePostSeason(self):
+        logger.warn("League.simulatePostSeason() should be overridden")
+        
+
+    def printStats(self):
+        logger.warn("League.printStats() should be overridden")
 

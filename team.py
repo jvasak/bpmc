@@ -89,7 +89,7 @@ class Team(TeamGroup):
         """Returns true if team had played each of the opponent
            in the list.  Presence of the tested team in list will
            be ignored and not cause failure"""
-        logging.info("Team.playedEach")
+        logging.debug("Team.playedEach")
         for opp in opps:
             if opp == self:
                 logging.debug("Skipping self in opponent list")

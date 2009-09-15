@@ -58,6 +58,7 @@ class Beatpath:
         self.__findAndRemoveBeatloops(gr, len(teams))
         self.__findAndRemoveRedundant(gr)
 
+
         # Output
         logging.debug(gr.string())
         (htmp, tmpname) = tempfile.mkstemp(suffix='.png', text=True)
@@ -105,7 +106,7 @@ class Beatpath:
             for node in gr.nodes():
                 loops = self.__findLoop(gr, node, node, maxDepth)
                 for edge in loops:
-                    print node + ": " + edge[0] + " => " + edge[1]
+                    logging.debug(node + ": " + edge[0] + " => " + edge[1])
                     self.__loops[node].add(edge[0])
                     badEdges.add(edge)
 
@@ -115,7 +116,7 @@ class Beatpath:
                 #    gv.setv(edge, 'color', 'red')
                 #gv.render(h_gr, 'png', file)
 
-                print "Found loops at depth %d.  Removing" % maxDepth
+                logging.info("Found loops at depth " + str(maxDepth) + ".  Removing")
                 for edge in badEdges:
                     #n1 = gv.headof(edge)
                     #n2 = gv.tailof(edge)

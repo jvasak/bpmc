@@ -41,7 +41,7 @@ def main():
 
     league = NFL()
 
-    if not league.loadSeasonInfo(args[0]):
+    if not league.loadCsvSchedule(args[0]):
         logging.critical("Error loading season schedule")
         sys.exit(1)
 
@@ -55,6 +55,8 @@ def main():
 
     random.seed()
     for i in range(1, options.iterations + 1):
+        logging.info("###==================================###")
+        logging.info("   Iteration " + str(i) + " of " + str(options.iterations))
         league.simulateSeason()
         if i % 10  == 0 and not i % 100 == 0: print '.',; sys.stdout.flush()
         if i % 100 == 0:                      print '#',; sys.stdout.flush()
