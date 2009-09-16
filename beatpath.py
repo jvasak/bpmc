@@ -1,11 +1,11 @@
-from pygraphviz import *
+from   pygraphviz import *
 import Image
 
 import logging
 import tempfile
 
 from league import League
-from team import Team
+from team   import Team
 
 class Beatpath:
 
@@ -61,10 +61,10 @@ class Beatpath:
 
         # Output
         logging.debug(gr.string())
-        (htmp, tmpname) = tempfile.mkstemp(suffix='.png', text=True)
-        gr.draw(tmpname, prog="dot")
-        logging.info("Wrote graph to " + tmpname)
-        Image.open(tmpname).show()
+        tmppng = tempfile.NamedTemporaryFile(suffix='.png', delete=True)
+        gr.draw(tmppng.name, prog="dot")
+        logging.info("Wrote graph to " + tmppng.name)
+        Image.open(tmppng.name).show()
 
         self.__gr = gr
 
