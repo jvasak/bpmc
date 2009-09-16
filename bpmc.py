@@ -3,9 +3,10 @@
 import sys
 import logging
 import random
-from optparse import OptionParser
+from   optparse import OptionParser
 
-from nfl import NFL
+from nfl  import NFL
+from ddpl import DDPL
 
 LOGGING_LEVELS = {'critical': logging.CRITICAL,
                   'error'   : logging.ERROR,
@@ -24,6 +25,8 @@ def main():
     parser.add_option("-b", "--beatpower", dest="bpfile", type="string",
                       help="csv file with beatpower scores",
                       metavar="FILE")
+    parser.add_option("-d", "--ddpl", dest="ddpl", action="store_true",
+                      help="Operate on DDPL data", default=True)
     parser.add_option('-l', '--logging-level', help='Logging level')
     parser.add_option('-f', '--logging-file', help='Logging file name')
     (options, args) = parser.parse_args()
@@ -38,8 +41,11 @@ def main():
     if len(args) < 1:
         parser.print_help()
         sys.exit(1)
-
-    league = NFL()
+    
+    if options.ddpl:
+        league = DDPL()
+    else:
+        league = NFL()
 
     if not league.loadCsvSchedule(args[0]):
         logging.critical("Error loading season schedule")

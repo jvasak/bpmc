@@ -21,10 +21,10 @@ class DDPL(League):
         League.__init__(self, 'DDPL')
 
         pc = Conference('Piler')
-        afce.setColors('black', 'blue')
+        pc.setColors('black', 'blue')
 
         fc = Conference('Fornicator')
-        afce.setColors('black', 'red')
+        fc.setColors('black', 'red')
 
         self.addChild(pc)
         self.addChild(fc)
@@ -79,8 +79,11 @@ class DDPL(League):
         """Match up postseason opponents and simulate all games
            through the Super Bowl"""
         sbTeams = []
-        for conf in self.__postseason.keys():
-            teams = self.__postseason[conf]
+        for conf in self.__standings.keys():
+            teams = self.__standings[conf]
+
+            teams[1].tallyWildCard()
+            teams[2].tallyWildCard()
 
             res = self.simulateGame(teams[1], teams[2], ties=False)
             if res > 0:
@@ -93,7 +96,6 @@ class DDPL(League):
                 sbTeams.append(teams[0])
             else:
                 sbTeams.append(winner)
-
 
         sbTeams[0].tallyConfChamp()
         sbTeams[1].tallyConfChamp()
@@ -212,7 +214,7 @@ def breakConfTie(teams):
             return teams
 
     else:
-        (finished, teams) = tieBreakStep(teams, teams, breakDivTie, "h2h")
+        (finished, teams) = tieBreakStep(teams, teams, breakConfTie, "h2h")
         if finished:
             return teams
 
