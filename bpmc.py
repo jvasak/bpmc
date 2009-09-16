@@ -26,7 +26,7 @@ def main():
                       help="csv file with beatpower scores",
                       metavar="FILE")
     parser.add_option("-d", "--ddpl", dest="ddpl", action="store_true",
-                      help="Operate on DDPL data", default=True)
+                      help="Operate on DDPL data", default=False)
     parser.add_option('-l', '--logging-level', help='Logging level')
     parser.add_option('-f', '--logging-file', help='Logging file name')
     (options, args) = parser.parse_args()
