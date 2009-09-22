@@ -106,6 +106,10 @@ class NFL(League):
         return 17
 
 
+    def relMultiplier(self):
+        return 3
+
+
     def onResetSeason(self):
         self.__postseason.clear()
         self.__standings.clear()

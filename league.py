@@ -113,11 +113,12 @@ class League(TeamGroup):
 
 
     def simulateGame(self, home, away, ties=True):
-        confidence = home.getBeatPower() - away.getBeatPower()
-        rels = home.getRelationships() + away.getRelationships()
-        res  = gauss(confidence, 100-rels)
+        delta = home.getBeatPower() - away.getBeatPower()
+        rels  = home.getRelationships() + away.getRelationships()
+        sigma = 250 - rels * self.relMultiplier()
+        res  = gauss(delta, sigma)
         while res == 0 and not ties:
-            res = gauss(confidence, 100-rels)
+            res = gauss(delta, sigma)
         return res
 
 
@@ -159,6 +160,16 @@ class League(TeamGroup):
         """ Set the proper number of weeks to consider when
             simulating the regular season """
         return 0
+
+
+    def relMultiplier(self):
+        """
+        Return the multiplier for number of relationship to
+        scale the sigma value.
+
+        sigma = 250 - total_rels * multiplier
+        """
+        return 1
 
 
     def allowTies(self):

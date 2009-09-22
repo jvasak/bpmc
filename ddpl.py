@@ -49,6 +49,10 @@ class DDPL(League):
         return 13
 
 
+    def relMultipler(self):
+        return 8
+
+
     def onResetSeason(self):
         self.__postseason.clear()
         self.__standings.clear()
