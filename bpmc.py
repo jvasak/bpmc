@@ -69,7 +69,7 @@ def main():
         if i % 200 == 0:                      print ' %8d' % i
 
     print
-    league.printStats()
+    league.printStats(plots=True)
 
     sys.exit(0)
 

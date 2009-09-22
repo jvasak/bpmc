@@ -3,6 +3,7 @@
 import logging
 import csv
 import random
+import Gnuplot
 
 from teamgroup  import TeamGroup
 from league     import League
@@ -222,7 +223,7 @@ class NFL(League):
             sbTeams[1].tallySuperBowl()
 
 
-    def printStats(self):
+    def printStats(self, plots=False):
         confs = self.getChildren()
         for cname in confs:
             print cname

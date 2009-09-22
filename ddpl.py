@@ -3,6 +3,7 @@
 import logging
 import csv
 import random
+import Gnuplot
 
 from teamgroup  import TeamGroup
 from league     import League
@@ -108,15 +109,26 @@ class DDPL(League):
             sbTeams[1].tallySuperBowl()
 
 
-    def printStats(self):
+    def printStats(self, plots=False):
+        if plots:
+            logging.info("Generating plots")
+            numTeams = len(self.getTeams())
+
+            g = Gnuplot.Gnuplot()
+            g('set key off')
+            g('set style fill solid 1.00 border -1')
+            g.set_range('yrange', (0,numTeams))
+            tics  = ['set ytics (']
+            data  = dict()
+            maxDb = 0.0
+
         confs = self.getChildren()
         for cname in confs:
-            print cname
-            conf = confs[cname]
-            
+            conf  = confs[cname]
             teams = conf.getTeams()
-            teams.sort(key=Team.getAvgDivPlace)
 
+            print cname
+            teams.sort(key=Team.getAvgDivPlace)
             for team in teams:
                 print ("    %-3s (%5.1f)  %4.2f   %6.4f   %6.4f   %6.4f") % (team.getAbbr(),
                                                                              team.getBeatPower(),
@@ -124,7 +136,32 @@ class DDPL(League):
                                                                              team.getPostseasonPct(),
                                                                              team.getConfChampPct(),
                                                                              team.getSuperBowlPct())
+            if plots:
+                data[cname] = []
+                teams.sort(key=Team.getAbbr)
+                for team in teams:
+                    numTeams -= 1
+                    db = team.getSuperBowlPct()
+                    if db > maxDb:
+                        maxDb = db
+                    data[cname].append([db, numTeams+.5, 0, db, numTeams+.25, numTeams+.75])
+                    g('set label "%s" at %f, %f' % (db, db+.05, numTeams+.5))
+                    tics.append('"%s" %f,' % (team.getAbbr(), numTeams+.5))
 
+        if plots:
+            gdat = dict()
+            gdat['Fornicator'] = Gnuplot.Data(data['Fornicator'], with_='boxxyerrorbars lt rgb "red"')
+            gdat['Piler']      = Gnuplot.Data(data['Piler'],      with_='boxxyerrorbars lt rgb "blue"')
+
+            g.set_range('xrange', (0,maxDb+.2))
+
+            tics.append('"" 0)')
+            import string
+            g(string.join(tics))
+
+            g.plot(gdat['Fornicator'], gdat['Piler'])
+
+            raw_input('Press ENTER to finish')
 
 ######################################################
 #
@@ -233,5 +270,3 @@ def breakConfTie(teams):
     teams[1:]   = breakConfTie(teams[1:])
 
     return teams
-
-

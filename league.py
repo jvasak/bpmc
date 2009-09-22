@@ -171,6 +171,6 @@ class League(TeamGroup):
         logger.warn("League.simulatePostSeason() should be overridden")
         
 
-    def printStats(self):
+    def printStats(self, plots=False):
         logger.warn("League.printStats() should be overridden")
 
