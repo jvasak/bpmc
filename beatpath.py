@@ -1,4 +1,5 @@
 from   pygraphviz import *
+from   array      import array
 import Image
 
 import logging
@@ -117,12 +118,51 @@ class Beatpath:
                 #gv.render(h_gr, 'png', file)
 
                 logging.info("Found loops at depth " + str(maxDepth) + ".  Removing")
+                self.__printLoops(gr, badEdges, maxDepth)
                 for edge in badEdges:
                     #n1 = gv.headof(edge)
                     #n2 = gv.tailof(edge)
                     #print "\t%s -> %s" % (gv.nameof(n1), gv.nameof(n2))
                     gr.delete_edge(edge[0], edge[1])
 
+    ####################
+    #
+    def __printLoops(self, gr, edgeset, depth):
+        import code
+        if len(edgeset) == 0:
+            return
+
+        edgelist = list(edgeset)
+        used = array('B', [0] * len(edgelist))
+
+        while used.count(False):
+            prLoops = []
+            start = used.index(False)
+
+            prLoops.append([edgelist[start][0], edgelist[start][1]])
+            used[start] = True
+
+            for d in range(1, depth):
+                loopLen = len(prLoops)
+                for i in range(loopLen):
+                    lastTeam = prLoops[i][-1]
+                    first = True
+                    for e in range(len(edgelist)):
+                        edge = edgelist[e]
+                        if edge[0] == lastTeam:
+                            if d == (depth-1) and edge[1] != prLoops[i][0]:
+                                continue
+                            used[e] = True
+                            if first:
+                                prLoops[i].append(edge[1])
+                                first = False
+                            else:
+                                #code.interact(local=locals())
+                                prLoops.append([v for v in prLoops[i]])
+                                prLoops[-1][-1] = edge[1]
+
+            for i in range(len(prLoops)):
+                logging.info(" => ".join(prLoops[i]))
 
     ####################
     #
