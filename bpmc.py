@@ -59,17 +59,18 @@ def main():
                 logging.critical("Error loading beatpower file")
                 sys.exit(1)
 
-    random.seed()
-    for i in range(1, options.iterations + 1):
-        logging.info("###==================================###")
-        logging.info("   Iteration " + str(i) + " of " + str(options.iterations))
-        league.simulateSeason()
-        if i % 10  == 0 and not i % 100 == 0: print '.',; sys.stdout.flush()
-        if i % 100 == 0:                      print '#',; sys.stdout.flush()
-        if i % 200 == 0:                      print ' %8d' % i
+    if options.iterations > 0:
+        random.seed()
+        for i in range(1, options.iterations + 1):
+            logging.info("###==================================###")
+            logging.info("   Iteration " + str(i) + " of " + str(options.iterations))
+            league.simulateSeason()
+            if i % 10  == 0 and not i % 100 == 0: print '.',; sys.stdout.flush()
+            if i % 100 == 0:                      print '#',; sys.stdout.flush()
+            if i % 200 == 0:                      print ' %8d' % i
 
-    print
-    league.printStats(plots=True)
+        print
+        league.printStats(plots=True)
 
     sys.exit(0)
 
