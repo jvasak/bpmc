@@ -242,12 +242,13 @@ class NFL(League):
                 teams.sort(key=Team.getAvgDivPlace)
 
                 for team in teams:
-                    print ("    %-3s (%5.1f)  %4.2f   %6.4f   %6.4f   %6.4f") % (team.getAbbr(),
-                                                                                 team.getBeatPower(),
-                                                                                 team.getAvgDivPlace(),
-                                                                                 team.getPostseasonPct(),
-                                                                                 team.getConfChampPct(),
-                                                                                 team.getSuperBowlPct())
+                    print ("    %-3s (%5.1f/%2d)  %4.2f   %6.4f   %6.4f   %6.4f") % (team.getAbbr(),
+                                                                                     team.getBeatPower(),
+                                                                                     team.getRelationships(),
+                                                                                     team.getAvgDivPlace(),
+                                                                                     team.getPostseasonPct(),
+                                                                                     team.getConfChampPct(),
+                                                                                     team.getSuperBowlPct())
 
 
 ######################################################
