@@ -162,7 +162,8 @@ class Beatpath:
                                 prLoops[-1][-1] = edge[1]
 
             for i in range(len(prLoops)):
-                logging.info(" => ".join(prLoops[i]))
+                if len(prLoops[i]) == depth+1:
+                    logging.info(" => ".join(prLoops[i]))
 
     ####################
     #
