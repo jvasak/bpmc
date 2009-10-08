@@ -49,11 +49,17 @@ def main():
     g('set hidden')
     g('set contour base')
     g('set terminal wxt enhanced')
-    g.title('P_{HW}')
-    g.xlabel('{/Symbol m} ({/Symbol D}BeatPower)')
+    g.title('P_{Home Win}')
+    g.xlabel('{/Symbol m} (BP_{Home} - BP_{Away})')
     g.ylabel('{/Symbol s}')
+    g('set xtics ("-90" -90, "-45" -45, "0" 0, "45" 45, "90" 90)')
+    g('set ytics ("Many Connections" 65, "Few Connections" 235)')
+    g('set ztics ("0.25" 0.25, "0.50" 0.5, "0.75" 0.75, "1.00" 1)')
+    g('set view 70, 10, 1, 1')
     g.splot(Gnuplot.funcutils.compute_GridData(mu, sigma, prob_home_win, binary=0))
-    raw_input("Press ENTER to continue")
+    raw_input('Press ENTER')
+    g.hardcopy('cdf.svg', terminal='svg', enhanced=True)
+
 
 if __name__ == "__main__":
     main()
