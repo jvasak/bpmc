@@ -35,7 +35,7 @@ class League(TeamGroup):
 
         return True
 
-    def loadCsvSchedule(self, csvfile):
+    def loadCsvSchedule(self, csvfile, edgepower=False):
         logging.info("Loading schedule from: " + csvfile)
         self.__partial = False
         try:
@@ -93,7 +93,7 @@ class League(TeamGroup):
             from beatpath import Beatpath
             bp = Beatpath(self)
             bp.buildGraph()
-            bp.genBeatScores()
+            bp.genBeatScores(edgepower)
 
         return True
 

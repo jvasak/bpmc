@@ -44,8 +44,9 @@ class Beatpath:
             n.attr['color'] = 'black'
             n.attr['fontcolor'] = colors[0]
             n.attr['fillcolor'] = colors[1]
-            #n.attr['label'] = '<<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD>' + team.getAbbr() + \
-            #'</TD></TR><TR><TD><IMG SRC="/home/jvasak/ffstats/logos/' + team.getAbbr() + '.png" /></TD></TR></TABLE>>'
+            #n.attr['label'] = "<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\"><TR><TD>" + team.getAbbr() + \
+            #    "</TD></TR><TR><TD><IMG SRC=\"/home/jvasak/ffstats/logos/" + team.getAbbr() + \
+            #    ".png\" /></TD></TR></TABLE>"
 
 
         # Now loop over them to process games
@@ -202,7 +203,7 @@ class Beatpath:
 
     ####################
     #
-    def genBeatScores(self):
+    def genBeatScores(self, edgepower=False):
 
         for node in self.__gr.nodes():
             winSet  = self.__gatherDown(node)
@@ -215,7 +216,10 @@ class Beatpath:
             losses   = len(lossSet)
             loopRels = len(self.__loops[node])
 
-            totRels   = wins + losses + loopRels
+            if edgepower:
+                totRels   = wins + losses
+            else:
+                totRels   = wins + losses + loopRels
             beatPower = (wins / float(totRels)) - (losses / float(totRels))
             beatPower = (beatPower + 1) * 50
 

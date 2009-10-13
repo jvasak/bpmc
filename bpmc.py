@@ -25,6 +25,8 @@ def main():
     parser.add_option("-b", "--beatpower", dest="bpfile", type="string",
                       help="csv file with beatpower scores",
                       metavar="FILE")
+    parser.add_option("-e", "--edgepower", dest="edge", action="store_true",
+                      help="Use alternate EdgePower", default=False)
     parser.add_option("-d", "--ddpl", dest="ddpl", action="store_true",
                       help="Operate on DDPL data", default=False)
     parser.add_option('-l', '--logging-level', help='Logging level')
@@ -47,7 +49,7 @@ def main():
     else:
         league = NFL()
 
-    if not league.loadCsvSchedule(args[0]):
+    if not league.loadCsvSchedule(args[0], options.edge):
         logging.critical("Error loading season schedule")
         sys.exit(1)
 
