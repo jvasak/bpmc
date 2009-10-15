@@ -38,6 +38,7 @@ class League(TeamGroup):
     def loadCsvSchedule(self, csvfile, edgepower=False):
         logging.info("Loading schedule from: " + csvfile)
         self.__partial = False
+        curWeek        = 1
         try:
             skdReader = csv.reader(open(csvfile),
                                    delimiter=',', quotechar='|')
@@ -68,6 +69,15 @@ class League(TeamGroup):
                     self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
                 else:
                     self.__partial = True
+
+                    # If we move to a new week, save our old state
+                    if curWeek != int(row[wkIdx]):
+                        logging.info("Saving state for week %d", curWeek)
+                        teams = self.getTeams()
+                        for team in teams:
+                            team.saveSnapshot()
+                        curWeek = int(row[wkIdx])
+
                     home = self.getTeam(row[hmIdx])
                     away = self.getTeam(row[awIdx])
                     if int(row[hmScrIdx]) > int(row[awScrIdx]):
@@ -84,16 +94,23 @@ class League(TeamGroup):
             logging.error("Schedule parsing error")
             return False
 
+        logging.info("Data through week %d" % curWeek)
+
         if self.__partial:
+            logging.info("Saving state for week %d" % curWeek)
             teams = self.getTeams()
             for team in teams:
                 team.saveSnapshot()
 
-            # Build me a graph!
             from beatpath import Beatpath
-            bp = Beatpath(self)
-            bp.buildGraph()
-            bp.genBeatScores(edgepower)
+            for i in range(curWeek):
+                for team in teams:
+                    team.resetGames(i)
+                # Build me a graph!
+                logging.info("Building graph for week %d" % i)
+                bp = Beatpath(self)
+                bp.buildGraph()
+                bp.genBeatScores(edgepower)
 
         return True
 
