@@ -68,7 +68,6 @@ class Team(TeamGroup):
 
     def resetGames(self, week=-1):
         logging.info("Resetting to week %d" % week)
-        logging.debug(self.__winSnap)
         try:
             self.__wins      = []
             self.__wins.extend(self.__winSnap[week])
