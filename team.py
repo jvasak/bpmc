@@ -62,28 +62,26 @@ class Team(TeamGroup):
 
     def saveSnapshot(self):
         logging.debug("Saving snaphot for " + self.getAbbr())
-        if len(self.__wins):
-            self.__winSnap.extend(self.__wins)
-        if len(self.__ties):
-            self.__tieSnap.extend(self.__ties)
-        if len(self.__losses):
-            self.__lossSnap.extend(self.__losses)
+        self.__winSnap.append(self.__wins[:])
+        self.__tieSnap.append(self.__ties[:])
+        self.__lossSnap.append(self.__losses[:])
 
-    def resetGames(self):
-        self.__wins      = []
-        if len(self.__winSnap):
-            self.__wins.extend(self.__winSnap)
+    def resetGames(self, week=-1):
+        logging.info("Resetting to week %d" % week)
+        logging.debug(self.__winSnap)
+        try:
+            self.__wins      = []
+            self.__wins.extend(self.__winSnap[week])
 
-        self.__ties      = []
-        if len(self.__tieSnap):
-            self.__ties.extend(self.__tieSnap)
+            self.__ties      = []
+            self.__ties.extend(self.__tieSnap[week])
 
-        self.__losses    = []
-        if len(self.__lossSnap):
-            self.__losses.extend(self.__lossSnap)
+            self.__losses    = []
+            self.__losses.extend(self.__lossSnap[week])
 
-        self.__wpOpps    = []
-
+            self.__wpOpps    = []
+        except IndexError as e:
+            logging.error("%s missing snapshot data: %s" % (self.getAbbr(), str(e)))
 
     def playedEach(self, opps):
         """Returns true if team had played each of the opponent
