@@ -36,7 +36,7 @@ class League(TeamGroup):
 
         return True
 
-    def loadCsvSchedule(self, csvfile, edgepower=False):
+    def loadCsvSchedule(self, csvfile):
         logging.info("Loading schedule from: " + csvfile)
         self.__partial = False
         curWeek        = 1
@@ -113,8 +113,9 @@ class League(TeamGroup):
                     team.resetGames(i)
                 logging.info("Building graph for week %d" % i)
                 bp = Beatpath(self)
-                bp.buildGraph()
-                bp.genBeatScores(edgepower)
+                bp.buildGraph(i)
+
+            raw_input('Press ENTER')
 
         return True
 

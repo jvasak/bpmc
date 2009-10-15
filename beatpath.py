@@ -16,7 +16,7 @@ class Beatpath:
         self.__gr    = None
         self.__tDict = dict()
 
-    def buildGraph(self, display=True):
+    def buildGraph(self, week, display=True):
         if self.__gr is not None:
             logging.error("Graph already exists!")
             return
@@ -56,16 +56,19 @@ class Beatpath:
             for beaten in wins:
                 gr.add_edge(team.getAbbr(), beaten.getAbbr())
 
+        self.__gr = gr
 
         # Clean up
-        self.__findAndRemoveBeatloops(gr, len(teams))
-        self.__findAndRemoveRedundant(gr)
+        self.__findAndRemoveBeatloops(len(teams))
+        self.__genEdgeScores(week)
+        self.__findAndRemoveRedundant()
+        self.__genBeatScores(week)
 
 
         # Output
-        logging.debug(gr.string())
+        logging.debug(self.__gr.string())
         tmppng = tempfile.NamedTemporaryFile(suffix='.png', delete=True)
-        gr.draw(tmppng.name, prog="dot")
+        self.__gr.draw(tmppng.name, prog="dot")
         logging.info("Wrote graph to " + tmppng.name)
         img  = pygame.image.load(tmppng.name)
         pygame.display.set_mode(img.get_size())
@@ -73,24 +76,23 @@ class Beatpath:
         surf.blit(img, (0, 0))
         pygame.display.update()
 
-        self.__gr = gr
 
 
     ####################
     #
-    def __findLoop(self, gr, curNode, startNode, depth):
+    def __findLoop(self, curNode, startNode, depth):
         """ Find loop by recursively checking if current node can get back to start node """
         loopEdges = []
 
         if (depth <= 0):
             return loopEdges
 
-        for edge in gr.out_edges(nbunch=[curNode]):
+        for edge in self.__gr.out_edges(nbunch=[curNode]):
             node = edge[1]
             if (node == startNode):
                 loopEdges.append(edge)
             else:
-                newEdges = self.__findLoop(gr, node, startNode, depth-1)
+                newEdges = self.__findLoop(node, startNode, depth-1)
                 if (len(newEdges) > 0):
                     for recursiveEdge in newEdges:
                         loopEdges.append(recursiveEdge)
@@ -100,40 +102,32 @@ class Beatpath:
 
     ####################
     #
-    def __findAndRemoveBeatloops(self, gr, numTeams):
+    def __findAndRemoveBeatloops(self, numTeams):
         """ Loop over all nodes in graph to find loops and remove them """
-        #gv.render(gr, 'png', 'BP_d0.png')
         self.__loops = dict()
-        for node in gr.nodes():
+        for node in self.__gr.nodes():
             self.__loops[node] = set()
 
         for maxDepth in (range(2,numTeams+1)):
             badEdges = set()
 
-            for node in gr.nodes():
-                loops = self.__findLoop(gr, node, node, maxDepth)
+            for node in self.__gr.nodes():
+                loops = self.__findLoop(node, node, maxDepth)
                 for edge in loops:
                     logging.debug(node + ": " + edge[0] + " => " + edge[1])
                     self.__loops[node].add(edge[0])
                     badEdges.add(edge)
 
             if (len(badEdges) > 0):
-                #file =  'BP_d' + str(maxDepth) + '.png'
-                #for edge in badEdges:
-                #    gv.setv(edge, 'color', 'red')
-                #gv.render(h_gr, 'png', file)
 
                 logging.info("Found loops at depth " + str(maxDepth) + ".  Removing")
-                self.__printLoops(gr, badEdges, maxDepth)
+                self.__printLoops(badEdges, maxDepth)
                 for edge in badEdges:
-                    #n1 = gv.headof(edge)
-                    #n2 = gv.tailof(edge)
-                    #print "\t%s -> %s" % (gv.nameof(n1), gv.nameof(n2))
-                    gr.delete_edge(edge[0], edge[1])
+                    self.__gr.delete_edge(edge[0], edge[1])
 
     ####################
     #
-    def __printLoops(self, gr, edgeset, depth):
+    def __printLoops(self, edgeset, depth):
         import code
         if len(edgeset) == 0:
             return
@@ -173,42 +167,84 @@ class Beatpath:
 
     ####################
     #
-    def __removeOneAway(self, gr, node, start, closest):
+    def __removeOneAway(self, node, start, closest):
         """ Recursively move any redundant links """
-        for edge in gr.out_edges([node]):
+        for edge in self.__gr.out_edges([node]):
             if edge[1] in closest:
                 closest.remove(edge[1])
-                gr.delete_edge(start, edge[1])
-            closest = self.__removeOneAway(gr, edge[1], start, closest)
+                self.__gr.delete_edge(start, edge[1])
+            closest = self.__removeOneAway(edge[1], start, closest)
 
         return closest
 
 
     ####################
     #
-    def __findAndRemoveRedundant(self, gr):
+    def __findAndRemoveRedundant(self):
         """ Iterate over all nodes in graph to remove redundant links to beaten teams """
-        #gv.render(h_gr, 'png', 'BP_e0.png')
 
-        for curNode in gr.nodes():
+        for curNode in self.__gr.nodes():
             # Find everything one away.  If we see these later,
             # we can quickly remove them
             closest = []
-            for edge in gr.out_edges([curNode]):
+            for edge in self.__gr.out_edges([curNode]):
                 if edge[1] not in closest:
                     closest.append(edge[1])
                 else:
-                    gr.delete_edge(edge[0], edge[1])
+                    self.__gr.delete_edge(edge[0], edge[1])
 
             # Now recursively dive down looking for these one
             # away nodes
-            for edge in gr.out_edges([curNode]):
-                closest = self.__removeOneAway(gr, edge[1], curNode, closest)
+            for edge in self.__gr.out_edges([curNode]):
+                closest = self.__removeOneAway(edge[1], curNode, closest)
 
 
     ####################
     #
-    def genBeatScores(self, edgepower=False):
+    def __genEdgeScores(self, week):
+
+        for node in self.__gr.nodes():
+            rels     = 0
+
+            relSet   = set()
+            winEdges = self.__countEdges(node, relSet, cntDown=True)
+            rels    += len(relSet)
+
+            relSet.clear()
+            losEdges = self.__countEdges(node, relSet, cntDown=False)
+            rels    += len(relSet)
+
+            edgePower = winEdges - losEdges
+
+            print ("%2d  %3s: %2d - %2d = %4d (%2d)") % (week, node,
+                                                         winEdges, losEdges,
+                                                         edgePower, rels)
+            
+
+    def __countEdges(self, node, visited, cntDown):
+        count = 0
+        if visited is None:
+            visited = set()
+
+        if cntDown:
+            edgeList = self.__gr.out_edges(node)
+            next     = 1
+        else:
+            edgeList = self.__gr.in_edges(node)
+            next     = 0
+
+        for edge in edgeList:
+            count += 1
+            if edge[next] in visited:
+                continue
+            visited.add(edge[next])
+            count += self.__countEdges(edge[next], visited, cntDown)
+
+        return count
+
+    ####################
+    #
+    def __genBeatScores(self, week):
 
         for node in self.__gr.nodes():
             winSet  = self.__gatherDown(node)
@@ -221,10 +257,7 @@ class Beatpath:
             losses   = len(lossSet)
             loopRels = len(self.__loops[node])
 
-            if edgepower:
-                totRels   = wins + losses
-            else:
-                totRels   = wins + losses + loopRels
+            totRels   = wins + losses + loopRels
             beatPower = (wins / float(totRels)) - (losses / float(totRels))
             beatPower = (beatPower + 1) * 50
 

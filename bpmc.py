@@ -52,7 +52,7 @@ def main():
     else:
         league = NFL()
 
-    if not league.loadCsvSchedule(args[0], options.edge):
+    if not league.loadCsvSchedule(args[0]):
         logging.critical("Error loading season schedule")
         sys.exit(1)
 
