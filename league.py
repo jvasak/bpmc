@@ -13,6 +13,7 @@ class League(TeamGroup):
     def __init__(self, name='Default'):
         TeamGroup.__init__(self, name)
         self.__sched = [[] for i in range(21)]
+        self.__nextWeek = 0
 
     def setParent(self, parent):
         logger.warn("Attempted to set parent for League.  Ignored")
@@ -65,9 +66,8 @@ class League(TeamGroup):
             for row in skdReader:
                 logging.debug("Wk " + row[wkIdx] + ": " + row[awIdx] + " " + row[awScrIdx] +
                               " @ " + row[hmScrIdx] + " " + row[hmIdx]);
-                if row[awScrIdx] == '--' or row[awScrIdx] == '--':
-                    self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
-                else:
+                self.__sched[int(row[wkIdx])-1].append((row[hmIdx],row[awIdx]))
+                if not (row[awScrIdx] == '--' or row[awScrIdx] == '--'):
                     self.__partial = True
 
                     # If we move to a new week, save our old state
@@ -102,11 +102,15 @@ class League(TeamGroup):
             for team in teams:
                 team.saveSnapshot()
 
+            # This looks wrong, but __nextWeek is 0-based index into 
+            # __sched, while curWeek is 1-based from csv file
+            self.__nextWeek = curWeek
+
+            # Show me the graphs!
             from beatpath import Beatpath
             for i in range(curWeek):
                 for team in teams:
                     team.resetGames(i)
-                # Build me a graph!
                 logging.info("Building graph for week %d" % i)
                 bp = Beatpath(self)
                 bp.buildGraph()
@@ -119,13 +123,16 @@ class League(TeamGroup):
         return self.__partial
 
 
-    def simulateSeason(self):
+    def simulateSeason(self, startWeek=None):
+        if startWeek is None:
+            startWeek = self.__nextWeek
+
         teams = self.getTeams()
         for team in teams:
-            team.resetGames()
+            team.resetGames(startWeek-1)
         self.onResetSeason()
 
-        self.simulateRegularSeason()
+        self.simulateRegularSeason(startWeek)
         self.simulatePostSeason()
 
 
@@ -139,8 +146,8 @@ class League(TeamGroup):
         return res
 
 
-    def simulateRegularSeason(self):
-        for week in range(self.weeksInRegularSeason()):
+    def simulateRegularSeason(self, startWeek=0):
+        for week in range(startWeek, self.weeksInRegularSeason()):
             logging.debug("Simulating " + str(len(self.__sched[week])) +
                           " games for week " + str(week))
 

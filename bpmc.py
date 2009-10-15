@@ -29,6 +29,9 @@ def main():
                       help="Use alternate EdgePower", default=False)
     parser.add_option("-d", "--ddpl", dest="ddpl", action="store_true",
                       help="Operate on DDPL data", default=False)
+    parser.add_option("-w", "--week", dest="week", type="int",
+                      help="week to simulate from (default: latest)",
+                      metavar="NUM", default=None)
     parser.add_option('-l', '--logging-level', help='Logging level')
     parser.add_option('-f', '--logging-file', help='Logging file name')
     (options, args) = parser.parse_args()
@@ -66,7 +69,7 @@ def main():
         for i in range(1, options.iterations + 1):
             logging.info("###==================================###")
             logging.info("   Iteration " + str(i) + " of " + str(options.iterations))
-            league.simulateSeason()
+            league.simulateSeason(options.week)
             if i % 10  == 0 and not i % 100 == 0: print '.',; sys.stdout.flush()
             if i % 100 == 0:                      print '#',; sys.stdout.flush()
             if i % 200 == 0:                      print ' %8d' % i
