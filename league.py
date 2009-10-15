@@ -138,8 +138,10 @@ class League(TeamGroup):
 
 
     def simulateGame(self, home, away, ties=True):
-        delta = home.getBeatPower() - away.getBeatPower()
-        rels  = home.getRelationships() + away.getRelationships()
+        hbp   = home.getBeatPower()
+        abp   = away.getBeatPower()
+        delta = hbp[0] - abp[0]
+        rels  = hbp[1] - abp[1]
         sigma = 250 - rels * self.relMultiplier()
         res  = gauss(delta, sigma)
         while res == 0 and not ties:

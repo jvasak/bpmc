@@ -216,6 +216,8 @@ class Beatpath:
 
             edgePower = winEdges - losEdges
 
+            self.__leag.getTeam(node).setEdgePower((edgePower, rels), week)
+
             print ("%2d  %3s: %2d - %2d = %4d (%2d)") % (week, node,
                                                          winEdges, losEdges,
                                                          edgePower, rels)
@@ -261,7 +263,7 @@ class Beatpath:
             beatPower = (wins / float(totRels)) - (losses / float(totRels))
             beatPower = (beatPower + 1) * 50
 
-            self.__leag.getTeam(node).setBeatPower(beatPower, totRels)
+            self.__leag.getTeam(node).setBeatPower((beatPower, totRels), week)
 
             #print ("%3s: %d/%d - %d/%d = %5.1f") % (node,
             #                                        wins, totRels,

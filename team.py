@@ -10,8 +10,8 @@ class Team(TeamGroup):
     def __init__(self, name, abbr):
         TeamGroup.__init__(self, name);
         self.__abbr          = abbr;
-        self.__beatpower     = 0.0
-        self.__relationships = 0
+        self.__beatpower     = [(0.0, 0)]
+        self.__edgepower     = [(0, 0)]
         self.__wins   = []
         self.__ties   = []
         self.__losses = []
@@ -24,19 +24,41 @@ class Team(TeamGroup):
         return self.__abbr
 
     def getName(self):
-        return "%5s (%5.1f) %3d %3d" % (self.__abbr, self.__beatpower,
+        return "%5s (%5.1f) %3d %3d" % (self.__abbr, self.__beatpower[-1][0],
                                         len(self.__wins),
                                         len(self.__losses))
 
-    def getBeatPower(self):
-        return self.__beatpower
+    def getBeatPower(self, week=-1):
+        try:
+            return self.__beatpower[week]
+        except IndexError:
+            logging.error("No data for %s week %d beatpower" % (self.__abbr, week))
+            return (0.0, 0)
 
-    def getRelationships(self):
-        return self.__relationships
+    def getEdgePower(self, week=-1):
+        try:
+            return self.__edgepower[week]
+        except IndexError:
+            logging.error("No data for %s week %d edgepower" % (self.__abbr, week))
+            return (0, 0)
 
-    def setBeatPower(self, power, rels):
-        self.__beatpower     = power
-        self.__relationships = rels
+    def setBeatPower(self, pwrRelTuple, week=0):
+        if len(self.__beatpower) > week:
+            self.__beatpower[week] = pwrRelTuple
+        elif len(self.__beatpower) == week:
+            self.__beatpower.append(pwrRelTuple)
+        else:
+            logging.error("Cannot save %s beatpower for week %d. Not enough other data" \
+                              % (self.__abbr, week))
+
+    def setEdgePower(self, pwrRelTuple, week=0):
+        if len(self.__edgepower) > week:
+            self.__edgepower[week] = pwrRelTuple
+        elif len(self.__edgepower) == week:
+            self.__edgepower.append(pwrRelTuple)
+        else:
+            logging.error("Cannot save %s edgepower for week %d. Not enough other data" \
+                              % (self.__abbr, week))
 
     def addWin(self, team):
         self.__wins.append(team)
