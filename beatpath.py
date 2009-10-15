@@ -1,6 +1,7 @@
 from   pygraphviz import *
 from   array      import array
-import Image
+import pygame.image
+import pygame.display
 
 import logging
 import tempfile
@@ -22,7 +23,7 @@ class Beatpath:
 
         gr = AGraph(strict=False)
 
-        gr.graph_attr['size']    = '12,12'
+        gr.graph_attr['size']    = '6,6'
         gr.graph_attr['bgcolor'] = 'gray87'
 
         gr.node_attr['shape'] = 'box'
@@ -66,7 +67,11 @@ class Beatpath:
         tmppng = tempfile.NamedTemporaryFile(suffix='.png', delete=True)
         gr.draw(tmppng.name, prog="dot")
         logging.info("Wrote graph to " + tmppng.name)
-        Image.open(tmppng.name).show()
+        img  = pygame.image.load(tmppng.name)
+        pygame.display.set_mode(img.get_size())
+        surf = pygame.display.get_surface()
+        surf.blit(img, (0, 0))
+        pygame.display.update()
 
         self.__gr = gr
 
