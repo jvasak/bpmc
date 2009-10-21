@@ -203,6 +203,10 @@ class Beatpath:
     #
     def __genEdgeScores(self, week):
 
+        numEdges = float(len(self.__gr.edges()))
+
+        print ("%2d: %3d edges") % (week, numEdges)
+
         for node in self.__gr.nodes():
             rels     = 0
 
@@ -214,13 +218,13 @@ class Beatpath:
             losEdges = self.__countEdges(node, relSet, cntDown=False)
             rels    += len(relSet)
 
-            edgePower = winEdges - losEdges
+            edgePower = 100 * (1 + ((winEdges - losEdges) / numEdges)) / 2.0
 
             self.__leag.getTeam(node).setEdgePower((edgePower, rels), week)
 
-            print ("%2d  %3s: %2d - %2d = %4d (%2d)") % (week, node,
-                                                         winEdges, losEdges,
-                                                         edgePower, rels)
+            print ("%2d  %3s: %2d - %2d = %05.2f (%2d)") % (week, node,
+                                                            winEdges, losEdges,
+                                                            edgePower, rels)
             
 
     def __countEdges(self, node, visited, cntDown):

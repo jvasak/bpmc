@@ -11,7 +11,7 @@ class Team(TeamGroup):
         TeamGroup.__init__(self, name);
         self.__abbr          = abbr;
         self.__beatpower     = [(0.0, 0)]
-        self.__edgepower     = [(0, 0)]
+        self.__edgepower     = [(0.0, 0)]
         self.__wins   = []
         self.__ties   = []
         self.__losses = []
@@ -40,7 +40,7 @@ class Team(TeamGroup):
             return self.__edgepower[week]
         except IndexError:
             logging.error("No data for %s week %d edgepower" % (self.__abbr, week))
-            return (0, 0)
+            return (0.0, 0)
 
     def setBeatPower(self, pwrRelTuple, week=0):
         if len(self.__beatpower) > week:
