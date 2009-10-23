@@ -14,3 +14,5 @@
 /doc/bpmc.log
 /doc/bpmc.out
 /doc/bpmc.pdf
+/nfl/*.csv
+/nfl/scores/*
