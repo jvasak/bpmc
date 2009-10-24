@@ -104,11 +104,48 @@ class Beatpath:
     #
     def __findAndRemoveBeatloops(self, numTeams):
         """ Loop over all nodes in graph to find loops and remove them """
+
+        # Find the longest loop in the graph
+        maxLoop = -1
+        for node in self.__gr.nodes():
+            logging.debug("Searching for longest loop at node %s" % node)
+            nSet     = []
+            loc      = 0
+
+            children = self.__gr.out_edges(nbunch=[node])
+            if len(children) == 0:
+                continue
+
+            depth    = 1
+            tmpSet   = set()
+            for edge in children:
+                tmpSet.add(edge[1])
+            nSet.extend(tmpSet)
+
+            while loc != len(nSet):
+                logging.debug("Depth %d" % depth)
+                logging.debug(nSet)
+
+                depth    += 1
+                lastNodes = nSet[loc:]
+                loc       = len(nSet)
+                unique    = set([e[1] for e in self.__gr.out_edges(nbunch=lastNodes)])
+                unique    = unique.difference(nSet)
+                logging.debug(unique)
+
+                if node in unique:
+                    maxLoop = max(maxLoop, depth)
+                    logging.debug("Found self at depth %d, max is %d" % (depth, maxLoop))
+                    unique.remove(node)
+                nSet.extend(unique)
+        logging.debug("Found max loop length of %d" % maxLoop)
+
         self.__loops = dict()
         for node in self.__gr.nodes():
             self.__loops[node] = set()
 
-        for maxDepth in (range(2,numTeams+1)):
+        for maxDepth in (range(2,maxLoop+1)):
+            logging.debug("Searching for loops of length %d" % maxDepth)
             badEdges = set()
 
             for node in self.__gr.nodes():
@@ -124,6 +161,7 @@ class Beatpath:
                 self.__printLoops(badEdges, maxDepth)
                 for edge in badEdges:
                     self.__gr.delete_edge(edge[0], edge[1])
+        logging.debug("Done removing loops")
 
     ####################
     #
