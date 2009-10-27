@@ -302,15 +302,15 @@ class Beatpath:
             loopRels = len(self.__loops[node])
 
             totRels   = wins + losses + loopRels
-            beatPower = (wins / float(totRels)) - (losses / float(totRels))
-            beatPower = (beatPower + 1) * 50
 
-            self.__leag.getTeam(node).setBeatPower((beatPower, totRels), week)
+            if totRels != 0:
+                beatPower = (wins / float(totRels)) - (losses / float(totRels))
+                beatPower = (beatPower + 1) * 50
 
-            #print ("%3s: %d/%d - %d/%d = %5.1f") % (node,
-            #                                        wins, totRels,
-            #                                        losses, totRels,
-            #                                        beatPower)
+                self.__leag.getTeam(node).setBeatPower((beatPower, totRels), week)
+            else:
+                self.__leag.getTeam(node).setBeatPower((50.0, 0), week)
+                
 
     def __gatherDown(self, node):
         nodes = set()
