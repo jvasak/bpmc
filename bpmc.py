@@ -22,9 +22,6 @@ def main():
     parser.add_option("-i", "--iterations", dest="iterations", type="int",
                       help="number of simulations to run",
                       metavar="NUM", default=1000)
-    parser.add_option("-b", "--beatpower", dest="bpfile", type="string",
-                      help="csv file with beatpower scores",
-                      metavar="FILE")
     parser.add_option("-e", "--edgepower", dest="edge", action="store_true",
                       help="Use alternate EdgePower", default=False)
     parser.add_option("-d", "--ddpl", dest="ddpl", action="store_true",
@@ -55,14 +52,6 @@ def main():
     if not league.loadCsvSchedule(args[0]):
         logging.critical("Error loading season schedule")
         sys.exit(1)
-
-    if options.bpfile is not None:
-        if league.isPartialSeason():
-            logging.warn("Cannot overwrite partial season beatpower")
-        else:
-            if not league.loadBeatPower(options.bpfile):
-                logging.critical("Error loading beatpower file")
-                sys.exit(1)
 
     if options.iterations > 0:
         random.seed()

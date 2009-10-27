@@ -19,23 +19,6 @@ class League(TeamGroup):
         logger.warn("Attempted to set parent for League.  Ignored")
         return False
 
-    def loadBeatPower(self, filename):
-        logging.info("Loading beatpower from " + filename)
-        try:
-            bpReader = csv.reader(open(filename),
-                                  delimiter=',', quotechar='|')
-            for row in bpReader:
-                team = self.getTeam(row[0])
-                if team is None:
-                    logging.error('Cannot find team ' + row[0])
-                else:
-                    team.setBeatPower(float(row[1]), int(row[2]))
-        except:
-            logging.error("Error parsing beatpower data")
-            return False
-
-        return True
-
     def loadCsvSchedule(self, csvfile):
         logging.info("Loading schedule from: " + csvfile)
         self.__partial = False
