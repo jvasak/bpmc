@@ -53,6 +53,8 @@ def main():
         logging.critical("Error loading season schedule")
         sys.exit(1)
 
+    league.showGraph()
+
     if options.iterations > 0:
         random.seed()
         for i in range(1, options.iterations + 1):

@@ -89,18 +89,23 @@ class League(TeamGroup):
             # __sched, while curWeek is 1-based from csv file
             self.__nextWeek = curWeek
 
-            # Show me the graphs!
-            from beatpath import Beatpath
-            for i in range(curWeek):
-                for team in teams:
-                    team.resetGames(i)
-                logging.info("Building graph for week %d" % i)
-                bp = Beatpath(self)
-                bp.buildGraph(i)
-
-            raw_input('Press ENTER')
-
         return True
+
+
+    def showGraph(self):
+        """
+        Generate graphs and EdgePower for every week
+        """
+        from beatpath import Beatpath
+        
+        for i in range(self.__nextWeek):
+            for team in self.getTeams():
+                team.resetGames(i)
+            logging.info("Building graph for week %d" % i)
+            bp = Beatpath(self)
+            bp.buildGraph(i)
+
+        raw_input('Press ENTER')
 
 
     def isPartialSeason(self):
